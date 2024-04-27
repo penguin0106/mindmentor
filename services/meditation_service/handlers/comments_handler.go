@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-	"mindmentor/services/meditation_service/models"
 	"mindmentor/services/meditation_service/repositories"
+	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
 )

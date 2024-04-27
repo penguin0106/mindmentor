@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
-	"mindmentor/services/auth_service/models"
+	"mindmentor/shared/models"
 )
 
 // TokenRepository представляет собой репозиторий для работы с токенами доступа

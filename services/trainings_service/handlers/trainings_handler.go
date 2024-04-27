@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"mindmentor/services/trainings_service/models"
 	"mindmentor/services/trainings_service/repositories"
+	"mindmentor/shared/models"
 	"net/http"
 )
 

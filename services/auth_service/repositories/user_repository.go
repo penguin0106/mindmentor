@@ -3,7 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
-	"mindmentor/services/auth_service/models"
+	"mindmentor/shared/models"
 )
 
 // UserRepository представляет собой репозиторий для работы с пользователями

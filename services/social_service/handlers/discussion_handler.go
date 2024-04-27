@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"mindmentor/services/social_service/models"
 	"mindmentor/services/social_service/repositories"
+	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
 )

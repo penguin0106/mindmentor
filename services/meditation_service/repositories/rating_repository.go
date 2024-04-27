@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"database/sql"
-	"mindmentor/services/meditation_service/models"
+	"mindmentor/shared/models"
 )
 
 // RatingRepository представляет собой репозиторий для работы с оценками курсов медитации

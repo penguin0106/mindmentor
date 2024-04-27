@@ -3,7 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
-	"mindmentor/services/social_service/models"
+	"mindmentor/shared/models"
 )
 
 type DiscussionRepository struct {
