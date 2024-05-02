@@ -21,7 +21,7 @@ func main() {
 	userService := services.NewUserService(userRepository)
 
 	// Инициализация обработчиков запросов
-	userHandler := handlers.NewUserHandler(userRepository, userService)
+	userHandler := handlers.NewUserHandler(userService)
 
 	// Настройка маршрутов
 	http.HandleFunc("/user", userHandler.GetUserHandler)

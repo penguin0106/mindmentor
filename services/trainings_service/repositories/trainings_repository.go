@@ -11,6 +11,10 @@ type TrainingRepository struct {
 	DB *sql.DB // Подключение к базе данных
 }
 
+func NewTrainingRepository(db *sql.DB) *TrainingRepository {
+	return &TrainingRepository{DB: db}
+}
+
 // GetAllTrainings возвращает все тренировки
 func (r *TrainingRepository) GetAllTrainings() ([]*models.Training, error) {
 	query := "SELECT id, title, description, rating, favorite FROM trainings"
@@ -38,11 +42,11 @@ func (r *TrainingRepository) GetAllTrainings() ([]*models.Training, error) {
 	return trainings, nil
 }
 
-// GetTrainingByID возвращает тренировку по ее идентификатору
-func (r *TrainingRepository) GetTrainingByID(trainingID int) (*models.Training, error) {
-	query := "SELECT id, title, description, rating, favorite FROM trainings WHERE id = $1"
+// GetTrainingByName возвращает тренировку по ее названию
+func (r *TrainingRepository) GetTrainingByName(trainingName string) (*models.Training, error) {
+	query := "SELECT id, title, description, rating, favorite FROM trainings WHERE title = $1"
 	var training models.Training
-	err := r.DB.QueryRow(query, trainingID).Scan(&training.ID, &training.Title, &training.Description, &training.Rating, &training.Favorite)
+	err := r.DB.QueryRow(query, trainingName).Scan(&training.ID, &training.Title, &training.Description, &training.Rating, &training.Favorite)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			// Возвращаем nil и ошибку, если тренировка не найдена

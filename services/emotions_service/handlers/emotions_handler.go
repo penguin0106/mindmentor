@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"mindmentor/services/emotions_service/repositories"
+	"mindmentor/services/emotions_service/services"
 	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
@@ -10,7 +10,13 @@ import (
 
 // EmotionHandler представляет обработчик HTTP-запросов для работы с эмоциями (записями)
 type EmotionHandler struct {
-	Repository *repositories.EmotionRepository
+	EmotionService *services.EmotionService
+}
+
+func NewEmotionHandler(emoService *services.EmotionService) *EmotionHandler {
+	return &EmotionHandler{
+		EmotionService: emoService,
+	}
 }
 
 // CreateEmotionHandler обрабатывает запрос на создание новой записи эмоции
@@ -24,7 +30,7 @@ func (h *EmotionHandler) CreateEmotionHandler(w http.ResponseWriter, r *http.Req
 
 	// Дополнительные проверки и валидация данных эмоции
 
-	err = h.Repository.CreateEmotion(&emotion)
+	err = h.EmotionService.CreateEmotion(&emotion)
 	if err != nil {
 		http.Error(w, "Ошибка создания записи эмоции", http.StatusInternalServerError)
 		return
@@ -51,7 +57,7 @@ func (h *EmotionHandler) UpdateEmotionHandler(w http.ResponseWriter, r *http.Req
 
 	// Дополнительные проверки и валидация данных обновленной эмоции
 
-	err = h.Repository.UpdateEmotion(emotionID, &updatedEmotion)
+	err = h.EmotionService.UpdateEmotion(emotionID, &updatedEmotion)
 	if err != nil {
 		http.Error(w, "Ошибка обновления записи эмоции", http.StatusInternalServerError)
 		return
@@ -68,7 +74,7 @@ func (h *EmotionHandler) DeleteEmotionHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = h.Repository.DeleteEmotion(emotionID)
+	err = h.EmotionService.DeleteEmotion(emotionID)
 	if err != nil {
 		http.Error(w, "Ошибка удаления записи эмоции", http.StatusInternalServerError)
 		return
@@ -88,7 +94,7 @@ func (h *EmotionHandler) GetEmotionsByUserHandler(w http.ResponseWriter, r *http
 	}
 
 	// Получение эмоций пользователя из репозитория
-	emotions, err := h.Repository.GetEmotionsByUserID(userID)
+	emotions, err := h.EmotionService.GetEmotionsByUserID(userID)
 	if err != nil {
 		http.Error(w, "Ошибка при получении эмоций пользователя", http.StatusInternalServerError)
 		return

@@ -2,13 +2,19 @@ package handlers
 
 import (
 	"fmt"
-	"mindmentor/services/meditation_service/repositories"
+	"mindmentor/services/meditation_service/services"
 	"net/http"
 	"strconv"
 )
 
 type FavouriteHandler struct {
-	Repository *repositories.FavoriteRepository
+	FavService *services.FavoriteService
+}
+
+func NewFavoriteHandler(favService *services.FavoriteService) *FavouriteHandler {
+	return &FavouriteHandler{
+		FavService: favService,
+	}
 }
 
 func (h *FavouriteHandler) AddToFavouritesHandler(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +42,7 @@ func (h *FavouriteHandler) AddToFavouritesHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	err = h.Repository.AddToFavorite(userID, courseID)
+	err = h.FavService.AddToFavorite(userID, courseID)
 	if err != nil {
 		http.Error(w, "Ошибка добавления тренировки в избранное", http.StatusInternalServerError)
 		return
@@ -71,7 +77,7 @@ func (h *FavouriteHandler) RemoveFromFavouritesHandler(w http.ResponseWriter, r 
 		return
 	}
 
-	err = h.Repository.RemoveFromFavorite(userID, courseID)
+	err = h.FavService.RemoveFromFavorite(userID, courseID)
 	if err != nil {
 		http.Error(w, "Ошибка удаления курса из избранного", http.StatusInternalServerError)
 		return

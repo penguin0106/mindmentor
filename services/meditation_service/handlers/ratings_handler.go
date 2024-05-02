@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-	"mindmentor/services/meditation_service/repositories"
+	"mindmentor/services/meditation_service/services"
 	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
@@ -11,7 +11,13 @@ import (
 
 // RatingHandler handles HTTP requests related to ratings
 type RatingHandler struct {
-	RatingRepo *repositories.RatingRepository
+	RatingService *services.RatingService
+}
+
+func NewRatingHandler(ratService *services.RatingService) *RatingHandler {
+	return &RatingHandler{
+		RatingService: ratService,
+	}
 }
 
 // AddRatingHandler adds a new rating for a course
@@ -24,7 +30,7 @@ func (h *RatingHandler) AddRatingHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = h.RatingRepo.AddRating(&rating)
+	err = h.RatingService.AddCourseRating(&rating)
 	if err != nil {
 		log.Println("Error adding rating:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -40,7 +46,7 @@ func (h *RatingHandler) GetAverageRatingHandler(w http.ResponseWriter, r *http.R
 		http.Error(w, "Некорректный идентификатор тренировки", http.StatusBadRequest)
 		return
 	}
-	averageRating, err := h.RatingRepo.GetAverageRating(courseID)
+	averageRating, err := h.RatingService.GetAverageCourseRating(courseID)
 	if err != nil {
 		http.Error(w, "Ошибка при получении рейтинга тренировки", http.StatusInternalServerError)
 		return

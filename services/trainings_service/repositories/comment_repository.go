@@ -12,6 +12,10 @@ type CommentRepository struct {
 	DB *sql.DB
 }
 
+func NewCommentRepository(db *sql.DB) *CommentRepository {
+	return &CommentRepository{DB: db}
+}
+
 // AddComment добавляет новый комментарий к тренировке в базу данных или другой источник данных
 func (r *CommentRepository) AddComment(userID, trainingID int, text string) error {
 	// Текущее время

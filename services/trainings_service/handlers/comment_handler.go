@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"mindmentor/services/trainings_service/repositories"
+	"mindmentor/services/trainings_service/services"
 	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
@@ -14,7 +14,11 @@ import (
 
 // CommentHandler представляет обработчик HTTP-запросов для работы с комментариями
 type CommentHandler struct {
-	Repository *repositories.CommentRepository
+	CommentServ *services.CommentService
+}
+
+func NewCommentHandler(commentServ *services.CommentService) *CommentHandler {
+	return &CommentHandler{CommentServ: commentServ}
 }
 
 // AddCommentHandler обрабатывает запрос на добавление нового комментария к тренировке
@@ -44,7 +48,7 @@ func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Добавление комментария в хранилище
-	err = h.Repository.AddComment(trainingID, comment.UserID, comment.Text)
+	err = h.CommentServ.AddComment(trainingID, comment.UserID, comment.Text)
 	if err != nil {
 		log.Println("Ошибка добавления комментария:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -68,7 +72,7 @@ func (h *CommentHandler) GetCommentsByTrainingIDHandler(w http.ResponseWriter, r
 	}
 
 	// Получение комментариев для указанной тренировки
-	comments, err := h.Repository.GetCommentsByTrainingID(trainingID)
+	comments, err := h.CommentServ.GetCommentsByTrainingID(trainingID)
 	if err != nil {
 		log.Println("Ошибка при получении комментариев для тренировки", err)
 		http.Error(w, "Bad Request", http.StatusInternalServerError)
@@ -130,7 +134,7 @@ func (h *CommentHandler) GetRatingHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Получение рейтинга тренировки из репозитория
-	averageRating, err := h.Repository.GetRating(trainingID)
+	averageRating, err := h.CommentServ.GetRating(trainingID)
 	if err != nil {
 		http.Error(w, "Ошибка при получении рейтинга тренировки", http.StatusInternalServerError)
 		return

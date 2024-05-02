@@ -10,6 +10,10 @@ type CommentRepository struct {
 	DB *sql.DB
 }
 
+func NewCommentrepository(db *sql.DB) *CommentRepository {
+	return &CommentRepository{DB: db}
+}
+
 // AddComment добавляет новый комментарий курса медитации
 func (r *CommentRepository) AddComment(comment *models.Comment) error {
 	// Реализация добавления комментария в базу данных или другой источник данных

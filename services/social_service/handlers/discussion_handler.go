@@ -3,14 +3,20 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"mindmentor/services/social_service/repositories"
+	"mindmentor/services/social_service/services"
 	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
 )
 
 type DiscussionHandler struct {
-	Repo *repositories.DiscussionRepository
+	SocialService *services.DiscussionService
+}
+
+func NewDiscussionHandler(discussionService *services.DiscussionService) *DiscussionHandler {
+	return &DiscussionHandler{
+		SocialService: discussionService,
+	}
 }
 
 func (h *DiscussionHandler) CreateDiscussionHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +27,7 @@ func (h *DiscussionHandler) CreateDiscussionHandler(w http.ResponseWriter, r *ht
 		return
 	}
 
-	err = h.Repo.CreateDiscussion(&discussion)
+	err = h.SocialService.CreateDiscussion(&discussion)
 	if err != nil {
 		http.Error(w, "Ошибка при создании обсуждения", http.StatusInternalServerError)
 		return
@@ -38,7 +44,7 @@ func (h *DiscussionHandler) FindDiscussionHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	discussion, err := h.Repo.FindDiscussion(topic)
+	discussion, err := h.SocialService.FindDiscussion(topic)
 	if err != nil {
 		http.Error(w, "Ошибка при поиске обсуждения", http.StatusInternalServerError)
 		return
@@ -78,7 +84,7 @@ func (h *DiscussionHandler) JoinDiscussionHandler(w http.ResponseWriter, r *http
 	}
 
 	// Вызываем метод репозитория для присоединения пользователя к обсуждению
-	err = h.Repo.JoinDiscussion(userIDInt, discussionIDInt)
+	err = h.SocialService.JoinDiscussion(userIDInt, discussionIDInt)
 	if err != nil {
 		http.Error(w, "Ошибка при присоединении пользователя к обсуждению", http.StatusInternalServerError)
 		return
@@ -113,7 +119,7 @@ func (h *DiscussionHandler) LeaveDiscussionHandler(w http.ResponseWriter, r *htt
 	}
 
 	// Вызываем метод репозитория для выхода пользователя из обсуждения
-	err = h.Repo.LeaveDiscussion(userIDInt, discussionIDInt)
+	err = h.SocialService.LeaveDiscussion(userIDInt, discussionIDInt)
 	if err != nil {
 		http.Error(w, "Ошибка при выходе пользователя из обсуждения", http.StatusInternalServerError)
 		return

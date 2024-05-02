@@ -10,6 +10,10 @@ type RatingRepository struct {
 	DB *sql.DB
 }
 
+func NewRatingrepository(db *sql.DB) *RatingRepository {
+	return &RatingRepository{DB: db}
+}
+
 // AddRating добавляет новую оценку курса медитации
 func (r *RatingRepository) AddRating(rating *models.Rating) error {
 	// Реализация добавления оценки в базу данных или другой источник данных

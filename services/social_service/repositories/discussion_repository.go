@@ -10,6 +10,10 @@ type DiscussionRepository struct {
 	DB *sql.DB
 }
 
+func NewDiscussionRepository(db *sql.DB) *DiscussionRepository {
+	return &DiscussionRepository{DB: db}
+}
+
 // CreateDiscussion создает новое обсуждение в базе данных
 func (r *DiscussionRepository) CreateDiscussion(discussion *models.Discussion) error {
 	query := "INSERT INTO discussions (topic, owner_id) VALUES ($1, $2)"

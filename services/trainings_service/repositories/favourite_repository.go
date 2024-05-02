@@ -10,6 +10,10 @@ type FavoriteRepository struct {
 	DB *sql.DB
 }
 
+func NewFavoriteRepository(db *sql.DB) *FavoriteRepository {
+	return &FavoriteRepository{DB: db}
+}
+
 // AddToFavorites добавляет тренировку в избранное для указанного пользователя
 func (r *FavoriteRepository) AddToFavorites(userID, trainingID int) error {
 	query := "INSERT INTO trainings_favorites (user_id, training_id) VALUES ($1, $2)"

@@ -11,6 +11,10 @@ type MusicRepository struct {
 	DB *sql.DB
 }
 
+func NewMusicrepository(db *sql.DB) *MusicRepository {
+	return &MusicRepository{DB: db}
+}
+
 // GetAllMusic возвращает все аудиофайлы для медитации
 func (r *MusicRepository) GetAllMusic() ([]*models.Music, error) {
 	rows, err := r.DB.Query("SELECT id, name, duration, url FROM music")

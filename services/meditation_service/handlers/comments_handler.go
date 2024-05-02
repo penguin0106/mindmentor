@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"mindmentor/services/meditation_service/repositories"
+	"mindmentor/services/meditation_service/services"
 	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
@@ -13,7 +13,11 @@ import (
 
 // CommentHandler handles HTTP requests related to comments
 type CommentHandler struct {
-	CommentRepo *repositories.CommentRepository
+	CommentService *services.CommentService
+}
+
+func NewCommentHandler(comServ *services.CommentService) *CommentHandler {
+	return &CommentHandler{CommentService: comServ}
 }
 
 // AddCommentHandler adds a new comment for a course
@@ -34,7 +38,7 @@ func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Reques
 	//Установка временной метки комментария
 	comment.Timestamp = time.Now().Unix()
 
-	err = h.CommentRepo.AddComment(&comment)
+	err = h.CommentService.AddCourseComment(&comment)
 	if err != nil {
 		log.Println("Ошибка добавления комментария:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -55,7 +59,7 @@ func (h *CommentHandler) GetCommentsByCourseIDHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	comments, err := h.CommentRepo.GetCommentsByCourseID(courseID)
+	comments, err := h.CommentService.GetCourseComments(courseID)
 	if err != nil {
 		log.Println("Error getting comments by course ID:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

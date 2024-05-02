@@ -11,6 +11,10 @@ type CourseRepository struct {
 	DB *sql.DB
 }
 
+func NewCourseRepository(db *sql.DB) *CourseRepository {
+	return &CourseRepository{DB: db}
+}
+
 // GetAllCourses возвращает все курсы медитации
 func (r *CourseRepository) GetAllCourses() ([]*models.Course, error) {
 	rows, err := r.DB.Query("SELECT id, name, description FROM courses")
@@ -34,15 +38,15 @@ func (r *CourseRepository) GetAllCourses() ([]*models.Course, error) {
 	return courses, nil
 }
 
-// GetCourseByID возвращает курс медитации по его идентификатору
-func (r *CourseRepository) GetCourseByID(courseID int) (*models.Course, error) {
-	row := r.DB.QueryRow("SELECT id, name, description FROM courses WHERE id = $1", courseID)
+// GetCourseByName возвращает курс медитации по его названию
+func (r *CourseRepository) GetCourseByName(courseName string) (*models.Course, error) {
+	row := r.DB.QueryRow("SELECT id, name, description FROM courses WHERE name = $1", courseName)
 
 	var course models.Course
 	err := row.Scan(&course.ID, &course.Title, &course.Description)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil // Курс с таким идентификатором не найден
+			return nil, nil // Курс с таким названием не найден
 		}
 		return nil, err
 	}

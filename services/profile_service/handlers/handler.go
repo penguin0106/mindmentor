@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"mindmentor/services/profile_service/repositories"
 	"mindmentor/services/profile_service/services"
 	"mindmentor/shared/models"
 	"net/http"
@@ -10,14 +9,12 @@ import (
 )
 
 type UserHandler struct {
-	Repository  *repositories.UserRepository
 	userService *services.UserService
 }
 
 // NewUserHandler создает новый экземпляр UserHandler
-func NewUserHandler(repository *repositories.UserRepository, userService *services.UserService) *UserHandler {
+func NewUserHandler(userService *services.UserService) *UserHandler {
 	return &UserHandler{
-		Repository:  repository,
 		userService: userService,
 	}
 }
@@ -72,7 +69,7 @@ func (h *UserHandler) GetFavoriteCourseHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	favorites, err := h.Repository.GetFavoriteCourse(userID)
+	favorites, err := h.userService.GetFavoriteCourse(userID)
 	if err != nil {
 		http.Error(w, "Ошибка при получении избранных элементов пользователя", http.StatusInternalServerError)
 		return
@@ -102,7 +99,7 @@ func (h *UserHandler) GetFavoriteTrainingHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	favorites, err := h.Repository.GetFavoriteTraining(userID)
+	favorites, err := h.userService.GetFavoriteTraining(userID)
 	if err != nil {
 		http.Error(w, "Ошибка при получении избранных элементов пользователя", http.StatusInternalServerError)
 		return

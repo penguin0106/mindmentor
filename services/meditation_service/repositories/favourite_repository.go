@@ -10,6 +10,10 @@ type FavoriteRepository struct {
 	DB *sql.DB // Поле для подключения к базе данных
 }
 
+func NewFavoriterepository(db *sql.DB) *FavoriteRepository {
+	return &FavoriteRepository{DB: db}
+}
+
 // AddToFavorite добавляет элемент в избранное для указанного пользователя
 func (r *FavoriteRepository) AddToFavorite(userID, itemID int) error {
 	// Проверка наличия элемента в избранном пользователя

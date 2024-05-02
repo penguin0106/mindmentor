@@ -32,3 +32,13 @@ func (s *UserService) UpdateUser(userID int, updatedUser *models.User) error {
 	}
 	return nil
 }
+
+// GetFavoriteCourse возвращает избранные курсы для указанного пользователя
+func (s *UserService) GetFavoriteCourse(userID int) ([]models.Favorite, error) {
+	return s.userRepository.GetFavoriteCourse(userID)
+}
+
+// GetFavoriteTraining возвращает избранные тренировки для указанного пользователя
+func (s *UserService) GetFavoriteTraining(userID int) ([]models.Favorite, error) {
+	return s.userRepository.GetFavoriteTraining(userID)
+}

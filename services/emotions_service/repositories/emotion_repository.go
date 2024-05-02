@@ -12,6 +12,10 @@ type EmotionRepository struct {
 	DB *sql.DB
 }
 
+func NewEmotionRepository(db *sql.DB) *EmotionRepository {
+	return &EmotionRepository{DB: db}
+}
+
 // CreateEmotion создает новую запись эмоции в базе данных
 func (r *EmotionRepository) CreateEmotion(emotion *models.Emotion) error {
 	query := "INSERT INTO emotions (topic, body, user_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)"
