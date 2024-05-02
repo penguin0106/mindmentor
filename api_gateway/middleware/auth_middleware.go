@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	_ "github.com/lib/pq"
 	"mindmentor/services/auth_service/repositories"
 	"mindmentor/shared/models"
 	"net/http"
@@ -108,7 +109,7 @@ func IsUserExistsByID(userID int) bool {
 // GetUserByID retrieves a user from the database based on the provided ID
 func GetUserByID(userID int) (*models.User, error) {
 	// Connect to the database
-	db, err := sql.Open("postgres", "your_database_connection_string")
+	db, err := sql.Open("postgres", "postgres://mindmentor:postgres@database_service:5432/mindmentor?sslmode=disable")
 	if err != nil {
 		return nil, err
 	}
