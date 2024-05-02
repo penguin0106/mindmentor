@@ -19,13 +19,13 @@ func main() {
 
 	// Регистрация HTTP обработчиков
 	http.HandleFunc("/trainings", trainingHandler.GetAllTrainingsHandler)
-	http.HandleFunc("/trainings/add-to-favorites", favoriteHandler.AddToFavoritesHandler)
-	http.HandleFunc("/trainings/remove-from-favorites", favoriteHandler.RemoveFromFavoritesHandler)
+	http.HandleFunc("/add-to-favorites", favoriteHandler.AddToFavoritesHandler)
+	http.HandleFunc("/remove-from-favorites", favoriteHandler.RemoveFromFavoritesHandler)
 	http.HandleFunc("/comments", commentHandler.AddCommentHandler)
 	http.HandleFunc("/comments/trainings", commentHandler.GetCommentsByTrainingIDHandler)
 	http.HandleFunc("/rating", commentHandler.AddRatingHandler)
 	http.HandleFunc("/trainings/rating", commentHandler.GetRatingHandler)
 
 	// Запуск сервера
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8085", nil)
 }

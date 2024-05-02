@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"mindmentor/services/trainings_service/models"
+	"log"
 	"mindmentor/services/trainings_service/repositories"
+	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
 	"time"
@@ -21,6 +22,7 @@ func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Reques
 	var comment models.Comment
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
+		log.Println("Error decoding comment JSON", err)
 		http.Error(w, "Ошибка декодирования JSON", http.StatusBadRequest)
 		return
 	}
@@ -44,7 +46,8 @@ func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Reques
 	// Добавление комментария в хранилище
 	err = h.Repository.AddComment(trainingID, comment.UserID, comment.Text)
 	if err != nil {
-		http.Error(w, "Ошибка добавления комментария", http.StatusInternalServerError)
+		log.Println("Ошибка добавления комментария:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -56,22 +59,33 @@ func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Reques
 // GetCommentsByTrainingIDHandler обрабатывает запрос на получение комментариев для указанной тренировки
 func (h *CommentHandler) GetCommentsByTrainingIDHandler(w http.ResponseWriter, r *http.Request) {
 	// Получение идентификатора тренировки из параметров запроса
-	trainingID, err := getTrainingIDFromRequest(r)
+	trainingIDStr := r.URL.Query().Get("training_id")
+	trainingID, err := strconv.Atoi(trainingIDStr)
 	if err != nil {
-		http.Error(w, "Не удалось получить идентификатор тренировки", http.StatusBadRequest)
+		log.Println("Не удалось получить идентификатор тренировки", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
 	// Получение комментариев для указанной тренировки
 	comments, err := h.Repository.GetCommentsByTrainingID(trainingID)
 	if err != nil {
-		http.Error(w, "Ошибка при получении комментариев для тренировки", http.StatusInternalServerError)
+		log.Println("Ошибка при получении комментариев для тренировки", err)
+		http.Error(w, "Bad Request", http.StatusInternalServerError)
+		return
+	}
+
+	response, err := json.Marshal(comments)
+	if err != nil {
+		log.Println("Error marshalling comments to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	// Отправка комментариев в виде JSON-ответа
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(comments)
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
 }
 
 // getTrainingIDFromRequest извлекает идентификатор тренировки из запроса

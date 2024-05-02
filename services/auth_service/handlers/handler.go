@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"mindmentor/services/auth_service/services"
 	"mindmentor/shared/models"
 	"net/http"
 )

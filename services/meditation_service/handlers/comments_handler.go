@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"mindmentor/services/meditation_service/repositories"
 	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // CommentHandler handles HTTP requests related to comments
@@ -24,14 +26,23 @@ func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	//Проверка наличия необходимых полей в комментарии
+	if comment.UserID == 0 || comment.Text == "" {
+		http.Error(w, "Недостаточно данных для добавления комментария", http.StatusBadRequest)
+	}
+
+	//Установка временной метки комментария
+	comment.Timestamp = time.Now().Unix()
+
 	err = h.CommentRepo.AddComment(&comment)
 	if err != nil {
-		log.Println("Error adding comment:", err)
+		log.Println("Ошибка добавления комментария:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "Комментарий успешно добавлен")
 }
 
 // GetCommentsByCourseIDHandler returns all comments for a given course ID

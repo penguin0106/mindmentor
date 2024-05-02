@@ -20,5 +20,5 @@ func main() {
 	http.HandleFunc("/emotions/user", emotionHandler.GetEmotionsByUserHandler)
 
 	// Запуск сервера
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8082", nil)
 }

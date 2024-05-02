@@ -22,7 +22,7 @@ func main() {
 	emotionServiceCmd := exec.Command("go", "run", "mindmentor/services/emotions_service")
 	wg.Add(1)
 	go func() {
-		startService("Wallet", emotionServiceCmd)
+		startService("Emotion", emotionServiceCmd)
 		wg.Done()
 	}()
 
@@ -30,7 +30,7 @@ func main() {
 	meditationServiceCmd := exec.Command("go", "run", "mindmentor/services/meditation_service")
 	wg.Add(1)
 	go func() {
-		startService("Trade", meditationServiceCmd)
+		startService("Meditation", meditationServiceCmd)
 		wg.Done()
 	}()
 
@@ -38,7 +38,7 @@ func main() {
 	trainingsServiceCmd := exec.Command("go", "run", "mindmentor/services/social_service")
 	wg.Add(1)
 	go func() {
-		startService("User", trainingsServiceCmd)
+		startService("Training", trainingsServiceCmd)
 		wg.Done()
 	}()
 
@@ -46,7 +46,7 @@ func main() {
 	socialServiceCmd := exec.Command("go", "run", "mindmentor/services/social_service")
 	wg.Add(1)
 	go func() {
-		startService("User", socialServiceCmd)
+		startService("Social", socialServiceCmd)
 		wg.Done()
 	}()
 

@@ -6,6 +6,7 @@ import (
 	"log"
 	"mindmentor/services/auth_service/handlers"
 	"mindmentor/services/auth_service/repositories"
+	"mindmentor/services/auth_service/services"
 	"net/http"
 )
 
@@ -36,6 +37,6 @@ func main() {
 
 // connectToDatabase подключается к базе данных и возвращает объект подключения
 func connectToDatabase() (*sql.DB, error) {
-	db, err := sql.Open("postgres", "postgres://tdteam:tdteam@localhost:5432/tdteam?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://mindmentor:postgres@localhost:5432/mindmentor?sslmode=disable")
 	return db, err
 }
