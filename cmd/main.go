@@ -26,6 +26,13 @@ func main() {
 		wg.Done()
 	}()
 
+	profileServiceCmd := exec.Command("go", "run", "mindmentor/services/profile_service")
+	wg.Add(1)
+	go func() {
+		startService("Profile", profileServiceCmd)
+		wg.Done()
+	}()
+
 	// Запуск сервиса meditation
 	meditationServiceCmd := exec.Command("go", "run", "mindmentor/services/meditation_service")
 	wg.Add(1)

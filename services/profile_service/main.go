@@ -30,8 +30,8 @@ func main() {
 	http.HandleFunc("/favorites/training-get", userHandler.GetFavoriteTrainingHandler)
 
 	// Запуск сервера
-	log.Println("Server started on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Server started on port 8086")
+	log.Fatal(http.ListenAndServe(":8086", nil))
 }
 
 // connectToDatabase подключается к базе данных и возвращает объект подключения
