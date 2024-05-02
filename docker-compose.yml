@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  api_gateway:
+    build: ./api_gateway
+    ports:
+      - "8090:8090"
+    depends_on:
+      - auth_service
+      - database_service
+      - emotions_service
+      - meditation_service
+      - profile_service
+      - social_service
+      - trainings_service
+
+  auth_service:
+    build: ./services/auth_service
+    ports:
+      - "8081:8081"
+    environment:
+      - DATABASE_URL=postgres://mindmentor:postgres@database_service:5432/mindmentor?sslmode=disable
+    depends_on:
+      - database_service
+
+  database_service:
+    build: ./services/database_service
+    ports:
+      - "5432:5432"
+
+  emotions_service:
+    build: ./services/emotions_service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - database_service
+
+  meditation_service:
+    build: ./services/meditation_service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - database_service
+
+  profile_service:
+    build: ./services/profile_service
+    ports:
+      - "8086:8086"
+    depends_on:
+      - database_service
+
+  social_service:
+    build: ./services/social_service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - database_service
+
+  trainings_service:
+    build: ./services/trainings_service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - database_service

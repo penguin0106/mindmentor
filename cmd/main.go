@@ -18,6 +18,13 @@ func startService(name string, cmd *exec.Cmd) {
 func main() {
 	var wg sync.WaitGroup
 
+	databaseServiceCmd := exec.Command("go", "run", "mindmentor/services/database_service")
+	wg.Add(1)
+	go func() {
+		startService("Database", databaseServiceCmd)
+		wg.Done()
+	}()
+
 	// Запуск сервиса emotions
 	emotionServiceCmd := exec.Command("go", "run", "mindmentor/services/emotions_service")
 	wg.Add(1)
@@ -70,14 +77,6 @@ func main() {
 	wg.Add(1)
 	go func() {
 		startService("Gateway", gatewayCmd)
-		wg.Done()
-	}()
-
-	//запуск main API
-	mainApiCmd := exec.Command("go", "run", "mindmentor/shared")
-	wg.Add(1)
-	go func() {
-		startService("Api", mainApiCmd)
 		wg.Done()
 	}()
 

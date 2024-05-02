@@ -8,185 +8,83 @@ import (
 	"net/http"
 )
 
-const url = "http://localhost"
-
-func handleAuthenticated(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		middleware.AuthMiddleware(http.HandlerFunc(next)).ServeHTTP(w, r)
-	}
-}
+const (
+	databaseServiceURL   = "http://database-service:5432"
+	authServiceURL       = "http://auth-service:8081"
+	emotionsServiceURL   = "http://emotions-service:8082"
+	meditationServiceURL = "http://meditation-service:8083"
+	socialServiceURL     = "http://social-service:8084"
+	trainingsServiceURL  = "http://trainings-service:8085"
+	profileServiceURL    = "http://profile-service:8086"
+)
 
 func main() {
-	http.HandleFunc("/create-db", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		// Call the Auth microservice here
-		dbURL := "url:8082/create-db"
-		resp, err := http.Get(dbURL)
-		if err != nil {
-			http.Error(w, "Failed to call wallet service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
+	// Set up middleware
+	authMiddleware := middleware.AuthMiddleware
+	loggingMiddleware := middleware.LoggingMiddleware
 
-	http.HandleFunc("/migrate", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		// Call the Auth microservice here
-		dbURL := "url:8082/migrate"
-		resp, err := http.Get(dbURL)
-		if err != nil {
-			http.Error(w, "Failed to call wallet service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
+	// Apply middleware to handlers
+	http.HandleFunc("/auth", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(authHandler))))
+	http.HandleFunc("/database", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(databaseHandler))))
+	http.HandleFunc("/emotions", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(emotionsHandler))))
+	http.HandleFunc("/meditation", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(meditationHandler))))
+	http.HandleFunc("/profile", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(profileHandler))))
+	http.HandleFunc("/social", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(socialHandler))))
+	http.HandleFunc("/trainings", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(trainingsHandler))))
 
-	http.HandleFunc("/service-orders", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		tradeURL := "url:8083/orders"
-		resp, err := http.Get(tradeURL)
-		if err != nil {
-			http.Error(w, "Failed to call trade service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
-
-	http.HandleFunc("/service-place", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		tradeURL := "url:8083/place-order"
-		resp, err := http.Get(tradeURL)
-		if err != nil {
-			http.Error(w, "Failed to call trade service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
-
-	http.HandleFunc("/service-profile", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		// Call the User microservice here
-		userURL := "url:8084/profile"
-		resp, err := http.Get(userURL)
-		if err != nil {
-			http.Error(w, "Failed to call trade service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
-
-	http.HandleFunc("/service-update", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		// Call the User microservice here
-		userURL := "url:8084/profile/update"
-		resp, err := http.Get(userURL)
-		if err != nil {
-			http.Error(w, "Failed to call trade service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
-
-	http.HandleFunc("/service-wallet", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		// Вызов микросервис Wallet
-		walletURL := "url:8085/wallet"
-		resp, err := http.Get(walletURL)
-		if err != nil {
-			http.Error(w, "Failed to call wallet service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
-
-	http.HandleFunc("/service-transactions", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		// Вызов микросервис Wallet
-		walletURL := "url:8085/wallet/transactions"
-		resp, err := http.Get(walletURL)
-		if err != nil {
-			http.Error(w, "Failed to call wallet service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
-
-	http.HandleFunc("/auth", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		// Call the Auth microservice here
-		loginURL := "url:8085/login"
-		resp, err := http.Get(loginURL)
-		if err != nil {
-			http.Error(w, "Failed to call wallet service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
-	http.HandleFunc("/auth-register", handleAuthenticated(func(w http.ResponseWriter, r *http.Request) {
-		// Call the Auth microservice here
-		registerURL := "url:8085/register"
-		resp, err := http.Get(registerURL)
-		if err != nil {
-			http.Error(w, "Failed to call wallet service", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read response body", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, string(body))
-	}))
-
-	http.HandleFunc("/gateway", func(w http.ResponseWriter, r *http.Request) {
-		// Call the Gateway microservice here
-	})
-	fmt.Println("MainAPI service is running on port 8090...")
+	fmt.Println("API Gateway is running on port 8090...")
 	log.Fatal(http.ListenAndServe(":8090", nil))
+}
+
+func authHandler(w http.ResponseWriter, r *http.Request) {
+	// Proxy the request to the auth service
+	proxyRequest(w, authServiceURL+r.URL.Path)
+}
+
+func databaseHandler(w http.ResponseWriter, r *http.Request) {
+	// Proxy the request to the database service
+	proxyRequest(w, databaseServiceURL+r.URL.Path)
+}
+
+func emotionsHandler(w http.ResponseWriter, r *http.Request) {
+	// Proxy the request to the emotions service
+	proxyRequest(w, emotionsServiceURL+r.URL.Path)
+}
+
+func meditationHandler(w http.ResponseWriter, r *http.Request) {
+	// Proxy the request to the meditation service
+	proxyRequest(w, meditationServiceURL+r.URL.Path)
+}
+
+func profileHandler(w http.ResponseWriter, r *http.Request) {
+	// Proxy the request to the profile service
+	proxyRequest(w, profileServiceURL+r.URL.Path)
+}
+
+func socialHandler(w http.ResponseWriter, r *http.Request) {
+	// Proxy the request to the social service
+	proxyRequest(w, socialServiceURL+r.URL.Path)
+}
+
+func trainingsHandler(w http.ResponseWriter, r *http.Request) {
+	// Proxy the request to the trainings service
+	proxyRequest(w, trainingsServiceURL+r.URL.Path)
+}
+
+func proxyRequest(w http.ResponseWriter, url string) {
+	resp, err := http.Get(url)
+	if err != nil {
+		http.Error(w, "Failed to proxy request", http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, "Failed to read response body", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(resp.StatusCode)
+	w.Write(body)
 }
