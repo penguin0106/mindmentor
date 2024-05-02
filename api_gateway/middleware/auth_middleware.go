@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"mindmentor/services/auth_service/repositories"
 	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
@@ -48,7 +49,7 @@ func IsAuthenticated(r *http.Request) bool {
 	return true
 }
 
-// Функция для проверки валидности токена
+// IsTokenValid Функция для проверки валидности токена
 func IsTokenValid(tokenString string) bool {
 	// Парсим JWT-токен
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -69,19 +70,26 @@ func IsTokenValid(tokenString string) bool {
 		if exp.Before(time.Now()) {
 			return false
 		}
-	} else {
-		return false
+
+		userID, ok := claims["user_id"].(string)
+		if !ok {
+			return false
+		}
+
+		userRepo := &repositories.UserRepository{}
+
+		exists, err := userRepo.CheckUserExists(userID)
+		if err != nil || !exists {
+			return false
+		}
+		return true
+
 	}
 
-	// Здесь должна быть ваша логика проверки наличия пользователя в базе данных
-	// Пример: получение пользователя из базы данных по ID, указанному в токене, и проверка его существования
-
-	// Возвращаем true, если все проверки пройдены успешно
-	return true
+	return false
 }
 
-// Функция для получения пользователя из базы данных по ID
-// IsUserExistsByID checks if a user exists in the database based on the ID from the token
+// IsUserExistsByID Функция для получения пользователя из базы данных по ID
 func IsUserExistsByID(userID int) bool {
 	// Get user from the database
 	user, err := GetUserByID(userID)

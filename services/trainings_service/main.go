@@ -19,7 +19,6 @@ func main() {
 
 	// Регистрация HTTP обработчиков
 	http.HandleFunc("/trainings", trainingHandler.GetAllTrainingsHandler)
-	http.HandleFunc("/favorites/get", favoriteHandler.GetFavoriteHandler)
 	http.HandleFunc("/favorites/add", favoriteHandler.AddToFavoritesHandler)
 	http.HandleFunc("/favorites/remove", favoriteHandler.RemoveFromFavoritesHandler)
 	http.HandleFunc("/comments", commentHandler.AddCommentHandler)

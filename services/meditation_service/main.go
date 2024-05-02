@@ -28,7 +28,6 @@ func main() {
 	http.HandleFunc("/ratings/get", ratingHandler.GetAverageRatingHandler)
 	http.HandleFunc("/comments", commentHandler.AddCommentHandler)
 	http.HandleFunc("/comments/course", commentHandler.GetCommentsByCourseIDHandler)
-	http.HandleFunc("favorites/get", favoriteHandler.GetFavoriteHandler)
 	http.HandleFunc("/favorites/add", favoriteHandler.AddToFavouritesHandler)
 	http.HandleFunc("/favorites/remove", favoriteHandler.RemoveFromFavouritesHandler)
 

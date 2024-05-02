@@ -38,3 +38,12 @@ func (repo *UserRepository) FindByEmail(email string) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (repo *UserRepository) CheckUserExists(userID string) (bool, error) {
+	var exists bool
+	err := repo.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)", userID).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
