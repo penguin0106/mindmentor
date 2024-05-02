@@ -111,56 +111,36 @@ func getTrainingIDFromRequest(r *http.Request) (int, error) {
 
 // AddRatingHandler обрабатывает запрос на добавление оценки тренировки
 func (h *CommentHandler) AddRatingHandler(w http.ResponseWriter, r *http.Request) {
-	// Извлекаем параметры из тела запроса
-	var requestData struct {
-		TrainingID int     `json:"trainingId"`
-		Rating     float64 `json:"rating"`
-	}
-	err := json.NewDecoder(r.Body).Decode(&requestData)
+	var rating models.Rating
+	err := json.NewDecoder(r.Body).Decode(&rating)
 	if err != nil {
-		http.Error(w, "Ошибка декодирования JSON", http.StatusBadRequest)
+		log.Println("Error decoding rating JSON:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
-
-	// Проверяем, что оба параметра присутствуют
-	if requestData.TrainingID == 0 || requestData.Rating == 0 {
-		http.Error(w, "Некорректные параметры", http.StatusBadRequest)
-		return
-	}
-
-	// Вызываем метод репозитория для добавления оценки тренировки
-	err = h.Repository.AddRating(requestData.TrainingID, requestData.Rating)
-	if err != nil {
-		http.Error(w, "Ошибка при добавлении оценки тренировки", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
 }
 
+// GetRatingHandler обрабатывает запрос на получение среднего рейтинга тренировки
 func (h *CommentHandler) GetRatingHandler(w http.ResponseWriter, r *http.Request) {
 	// Получение идентификатора тренировки из запроса
-	trainingID, err := getTrainingIDFromRequest(r)
+	trainingID, err := strconv.Atoi(r.URL.Query().Get("training_id"))
 	if err != nil {
-		http.Error(w, "Не удалось получить идентификатор тренировки", http.StatusBadRequest)
+		http.Error(w, "Некорректный идентификатор тренировки", http.StatusBadRequest)
 		return
 	}
 
-	// Выполнение запроса к репозиторию для получения рейтинга тренировки
-	rating, err := h.Repository.GetRating(trainingID)
+	// Получение рейтинга тренировки из репозитория
+	averageRating, err := h.Repository.GetRating(trainingID)
 	if err != nil {
 		http.Error(w, "Ошибка при получении рейтинга тренировки", http.StatusInternalServerError)
 		return
 	}
 
-	// Отправка рейтинга в виде JSON-ответа
-	responseJSON, err := json.Marshal(rating)
-	if err != nil {
-		http.Error(w, "Ошибка при формировании JSON-ответа", http.StatusInternalServerError)
-		return
-	}
-
+	// Отправка ответа с средним рейтингом в формате JSON
+	response := map[string]float64{"average_rating": averageRating}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(responseJSON)
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		log.Println("Ошибка при кодировании ответа:", err)
+	}
 }

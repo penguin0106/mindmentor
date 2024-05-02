@@ -15,7 +15,7 @@ func (r *FavoriteRepository) AddToFavorite(userID, itemID int) error {
 	// Проверка наличия элемента в избранном пользователя
 	// Если элемент уже существует, вернуть ошибку
 	var count int
-	err := r.DB.QueryRow("SELECT COUNT(*) FROM favorites WHERE user_id = $1 AND item_id = $2", userID, itemID).Scan(&count)
+	err := r.DB.QueryRow("SELECT COUNT(*) FROM course_favorites WHERE user_id = $1 AND item_id = $2", userID, itemID).Scan(&count)
 	if err != nil {
 		return err
 	}
@@ -24,7 +24,7 @@ func (r *FavoriteRepository) AddToFavorite(userID, itemID int) error {
 	}
 
 	// Добавление элемента в избранное
-	_, err = r.DB.Exec("INSERT INTO favorites (user_id, item_id) VALUES ($1, $2)", userID, itemID)
+	_, err = r.DB.Exec("INSERT INTO course_favorites (user_id, item_id) VALUES ($1, $2)", userID, itemID)
 	if err != nil {
 		return err
 	}

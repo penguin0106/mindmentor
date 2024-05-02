@@ -23,7 +23,8 @@ func main() {
 	http.HandleFunc("/remove-from-favorites", favoriteHandler.RemoveFromFavoritesHandler)
 	http.HandleFunc("/comments", commentHandler.AddCommentHandler)
 	http.HandleFunc("/comments/trainings", commentHandler.GetCommentsByTrainingIDHandler)
-	http.HandleFunc("/rating", commentHandler.AddRatingHandler)
+	http.HandleFunc("/rating/add", commentHandler.AddRatingHandler)
+	http.HandleFunc("/rating/get", commentHandler.GetRatingHandler)
 	http.HandleFunc("/trainings/rating", commentHandler.GetRatingHandler)
 
 	// Запуск сервера

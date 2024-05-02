@@ -24,7 +24,8 @@ func main() {
 	// Register HTTP handlers
 	http.HandleFunc("/courses", courseHandler.GetAllCoursesHandler)
 	http.HandleFunc("/music", musicHandler.GetAllMusicHandler)
-	http.HandleFunc("/ratings", ratingHandler.AddRatingHandler)
+	http.HandleFunc("/ratings/add", ratingHandler.AddRatingHandler)
+	http.HandleFunc("/ratings/get", ratingHandler.GetAverageRatingHandler)
 	http.HandleFunc("/comments", commentHandler.AddCommentHandler)
 	http.HandleFunc("/comments/course", commentHandler.GetCommentsByCourseIDHandler)
 	http.HandleFunc("/add-to_favorites", favoriteHandler.AddToFavouritesHandler)

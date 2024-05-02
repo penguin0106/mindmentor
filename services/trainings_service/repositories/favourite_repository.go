@@ -12,7 +12,7 @@ type FavoriteRepository struct {
 
 // AddToFavorites добавляет тренировку в избранное для указанного пользователя
 func (r *FavoriteRepository) AddToFavorites(userID, trainingID int) error {
-	query := "INSERT INTO favorites (user_id, training_id) VALUES ($1, $2)"
+	query := "INSERT INTO trainings_favorites (user_id, training_id) VALUES ($1, $2)"
 	_, err := r.DB.Exec(query, userID, trainingID)
 	if err != nil {
 		// Возвращаем ошибку, если произошла ошибка при выполнении запроса
@@ -24,7 +24,7 @@ func (r *FavoriteRepository) AddToFavorites(userID, trainingID int) error {
 
 // RemoveFromFavorites удаляет тренировку из избранного для указанного пользователя
 func (r *FavoriteRepository) RemoveFromFavorites(userID, trainingID int) error {
-	query := "DELETE FROM favorites WHERE user_id = $1 AND training_id = $2"
+	query := "DELETE FROM trainings_favorites WHERE user_id = $1 AND training_id = $2"
 	result, err := r.DB.Exec(query, userID, trainingID)
 	if err != nil {
 		// Возвращаем ошибку, если произошла ошибка при выполнении запроса
