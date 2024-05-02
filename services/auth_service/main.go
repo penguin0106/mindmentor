@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	"log"
 	"mindmentor/services/auth_service/handlers"
 	"mindmentor/services/auth_service/repositories"

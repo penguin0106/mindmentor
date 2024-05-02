@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	_ "github.com/lib/pq"
 	"log"
 	"mindmentor/services/social_service/handlers"
 	"mindmentor/services/social_service/repositories"
@@ -28,6 +29,8 @@ func main() {
 	http.HandleFunc("/discussions/find", discussionHandler.FindDiscussionHandler)
 	http.HandleFunc("/discussions/join", discussionHandler.JoinDiscussionHandler)
 	http.HandleFunc("/discussions/leave", discussionHandler.LeaveDiscussionHandler)
+	http.HandleFunc("/messages/update", discussionHandler.UpdateMessageHandler)
+	http.HandleFunc("/messages/delete", discussionHandler.DeleteMessageHandler)
 
 	// Запуск сервера
 	http.ListenAndServe(":8084", nil)

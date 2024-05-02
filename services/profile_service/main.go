@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	_ "github.com/lib/pq"
 	"log"
 	"mindmentor/services/profile_service/handlers"
 	"mindmentor/services/profile_service/repositories"

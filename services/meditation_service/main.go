@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	_ "github.com/lib/pq"
 	"log"
 	"mindmentor/services/meditation_service/handlers"
 	"mindmentor/services/meditation_service/repositories"

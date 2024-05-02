@@ -83,8 +83,11 @@ func (h *DiscussionHandler) JoinDiscussionHandler(w http.ResponseWriter, r *http
 		return
 	}
 
+	// Получаем контекст из запроса
+	ctx := r.Context()
+
 	// Вызываем метод репозитория для присоединения пользователя к обсуждению
-	err = h.SocialService.JoinDiscussion(userIDInt, discussionIDInt)
+	err = h.SocialService.JoinDiscussion(ctx, userIDInt, discussionIDInt)
 	if err != nil {
 		http.Error(w, "Ошибка при присоединении пользователя к обсуждению", http.StatusInternalServerError)
 		return
@@ -127,4 +130,58 @@ func (h *DiscussionHandler) LeaveDiscussionHandler(w http.ResponseWriter, r *htt
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Пользователь успешно вышел из обсуждения")
+}
+
+func (h *DiscussionHandler) UpdateMessageHandler(w http.ResponseWriter, r *http.Request) {
+	// Получаем данные сообщения из тела запроса
+	var message models.Message
+	err := json.NewDecoder(r.Body).Decode(&message)
+	if err != nil {
+		http.Error(w, "Неверный формат данных сообщения", http.StatusBadRequest)
+		return
+	}
+
+	// Получаем контекст из запроса
+	ctx := r.Context()
+
+	// Вызываем сервисный метод для обновления сообщения
+	err = h.SocialService.UpdateMessage(ctx, &message)
+	if err != nil {
+		http.Error(w, "Ошибка при обновлении сообщения", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Сообщение успешно обновлено")
+}
+
+func (h *DiscussionHandler) DeleteMessageHandler(w http.ResponseWriter, r *http.Request) {
+	// Получаем ID сообщения из параметров запроса
+	messageID := r.URL.Query().Get("messageID")
+
+	// Проверяем, что ID сообщения указан
+	if messageID == "" {
+		http.Error(w, "Не указан ID сообщения", http.StatusBadRequest)
+		return
+	}
+
+	// Преобразуем ID в формат int
+	messageIDInt, err := strconv.Atoi(messageID)
+	if err != nil {
+		http.Error(w, "Некорректный ID сообщения", http.StatusBadRequest)
+		return
+	}
+
+	// Получаем контекст из запроса
+	ctx := r.Context()
+
+	// Вызываем метод репозитория для удаления сообщения
+	err = h.SocialService.DeleteMessage(ctx, messageIDInt)
+	if err != nil {
+		http.Error(w, "Ошибка при удалении сообщения", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Сообщение успешно удалено")
 }
