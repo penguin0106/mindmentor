@@ -3,6 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
+	"mindmentor/shared/models"
 )
 
 // FavoriteRepository представляет собой репозиторий для работы с избранными элементами
@@ -61,4 +62,28 @@ func (r *FavoriteRepository) RemoveFromFavorite(userID, itemID int) error {
 	}
 
 	return nil
+}
+
+func (r *FavoriteRepository) GetFavorite(userID int) ([]models.Favorite, error) {
+	rows, err := r.DB.Query("SELECT item_id FROM course_favorite WHERE user_id = $1", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var favorites []models.Favorite
+	for rows.Next() {
+		var itemID int
+		err := rows.Scan(&itemID)
+		if err != nil {
+			return nil, err
+		}
+		favorite := models.Favorite{
+			UserID: userID,
+			ItemID: itemID,
+		}
+		favorites = append(favorites, favorite)
+	}
+
+	return favorites, nil
 }

@@ -28,8 +28,9 @@ func main() {
 	http.HandleFunc("/ratings/get", ratingHandler.GetAverageRatingHandler)
 	http.HandleFunc("/comments", commentHandler.AddCommentHandler)
 	http.HandleFunc("/comments/course", commentHandler.GetCommentsByCourseIDHandler)
-	http.HandleFunc("/add-to_favorites", favoriteHandler.AddToFavouritesHandler)
-	http.HandleFunc("/remove-from-favorites", favoriteHandler.RemoveFromFavouritesHandler)
+	http.HandleFunc("favorites/get", favoriteHandler.GetFavoriteHandler)
+	http.HandleFunc("/favorites/add", favoriteHandler.AddToFavouritesHandler)
+	http.HandleFunc("/favorites/remove", favoriteHandler.RemoveFromFavouritesHandler)
 
 	// Start the server
 	http.ListenAndServe(":8083", nil)

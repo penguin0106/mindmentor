@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"mindmentor/services/meditation_service/repositories"
 	"net/http"
@@ -79,4 +80,34 @@ func (h *FavouriteHandler) RemoveFromFavouritesHandler(w http.ResponseWriter, r 
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Курс успешно удален из избранного")
+}
+
+func (h *FavouriteHandler) GetFavoriteHandler(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("user_id")
+	if userIDStr == "" {
+		http.Error(w, "Не указан идетификатор пользователя", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		http.Error(w, "Некорректный формат идентификатора пользователя", http.StatusBadRequest)
+		return
+	}
+
+	favorites, err := h.Repository.GetFavorite(userID)
+	if err != nil {
+		http.Error(w, "Ошибка при получении избранных элементов пользователя", http.StatusInternalServerError)
+		return
+	}
+
+	response, err := json.Marshal(favorites)
+	if err != nil {
+		http.Error(w, "Ошибка при преобразовании данных в JSON", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
 }
