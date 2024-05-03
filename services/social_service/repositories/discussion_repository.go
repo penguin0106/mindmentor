@@ -16,6 +16,10 @@ func NewDiscussionRepository(db *sql.DB) *DiscussionRepository {
 	return &DiscussionRepository{DB: db}
 }
 
+type UserMessageRepository interface {
+	GetUserMessages(ctx context.Context, userID int) ([]models.Message, error)
+}
+
 // CreateDiscussion создает новое обсуждение в базе данных
 func (r *DiscussionRepository) CreateDiscussion(discussion *models.Discussion) error {
 	query := "INSERT INTO discussions (topic, owner_id) VALUES ($1, $2)"
@@ -45,7 +49,7 @@ func (r *DiscussionRepository) FindDiscussion(topic string) (*models.Discussion,
 }
 
 // JoinDiscussion добавляет пользователя к обсуждению в базе данных
-func (r *DiscussionRepository) JoinDiscussion(ctx context.Context, userID, discussionID int) error {
+func (r *DiscussionRepository) JoinDiscussion(ctx context.Context, userID, discussionID int, userMessageRepo UserMessageRepository) error {
 	query := "INSERT INTO user_discussions (user_id, discussion_id) VALUES ($1, $2)"
 	_, err := r.DB.ExecContext(ctx, query, userID, discussionID)
 	if err != nil {
@@ -53,7 +57,10 @@ func (r *DiscussionRepository) JoinDiscussion(ctx context.Context, userID, discu
 	}
 
 	// Получаем сообщения пользователя
-	userMessages := getUsersMessages(userID)
+	userMessages, err := userMessageRepo.GetUserMessages(ctx, userID)
+	if err != nil {
+		return err
+	}
 
 	// Добавляем каждое сообщение пользователя к обсуждению
 	for _, message := range userMessages {
@@ -78,13 +85,14 @@ func (r *DiscussionRepository) LeaveDiscussion(userID, discussionID int) error {
 	return nil
 }
 
-// getUsersMessages - пример функции, которая возвращает сообщения пользователя
-func getUsersMessages(userID int) []models.Message {
-	// Здесь можно реализовать логику для получения сообщений пользователя из другого источника, например, из другой таблицы или сервиса
-	return []models.Message{
-		{UserID: userID, Text: "Привет, мир!"},
-		{UserID: userID, Text: "Это сообщение от нового пользователя."},
+func (r *DiscussionRepository) getUsersMessages(ctx context.Context, userID int, userMessageRepo UserMessageRepository) ([]models.Message, error) {
+	// Здесь вызываем метод репозитория для получения сообщений пользователя
+	userMessages, err := userMessageRepo.GetUserMessages(ctx, userID)
+	if err != nil {
+		return nil, err
 	}
+
+	return userMessages, nil
 }
 
 // CreateMessage создает новое сообщение в указанном обсуждении.

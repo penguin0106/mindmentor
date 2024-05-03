@@ -104,3 +104,14 @@ CREATE TABLE IF NOT EXISTS user_discussions (
     CONSTRAINT fk_user_discussion FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_discussion_user FOREIGN KEY (discussion_id) REFERENCES discussions(id)
 );
+
+CREATE TABLE IF NOT EXISTS messages (
+    id SERIAL PRIMARY KEY,
+    discussion_id INT NOT NULL,
+    user_id INT NOT NULL,
+    text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (discussion_id) REFERENCES discussions(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
