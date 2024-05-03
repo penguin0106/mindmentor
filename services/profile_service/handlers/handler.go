@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"mindmentor/services/profile_service/models"
 	"mindmentor/services/profile_service/services"
-	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
 )

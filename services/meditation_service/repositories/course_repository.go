@@ -3,7 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
-	"mindmentor/shared/models"
+	"mindmentor/services/meditation_service/models"
 )
 
 // CourseRepository представляет собой репозиторий для работы с курсами медитации

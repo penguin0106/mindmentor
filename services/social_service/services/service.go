@@ -3,10 +3,9 @@ package services
 import (
 	"context"
 	"errors"
+	"mindmentor/services/social_service/models"
 	"mindmentor/services/social_service/repositories"
 	"time"
-
-	"mindmentor/shared/models"
 )
 
 type DiscussionService struct {
@@ -25,8 +24,8 @@ func (s *DiscussionService) FindDiscussion(topic string) (*models.Discussion, er
 	return s.Repo.FindDiscussion(topic)
 }
 
-func (s *DiscussionService) JoinDiscussion(ctx context.Context, userID, discussionID int) error {
-	return s.Repo.JoinDiscussion(ctx, userID, discussionID)
+func (s *DiscussionService) JoinDiscussion(ctx context.Context, userID, discussionID int, userMessageRepo repositories.UserMessageRepository) error {
+	return s.Repo.JoinDiscussion(ctx, userID, discussionID, userMessageRepo)
 }
 
 func (s *DiscussionService) LeaveDiscussion(userID, discussionID int) error {

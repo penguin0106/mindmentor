@@ -6,16 +6,22 @@ ENV GO111MODULE=on
 
 # Копируем файлы проекта в рабочую директорию контейнера
 WORKDIR /app
-COPY . .
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
+COPY services/social_service .
 
 # Сборка бинарного файла микросервиса
-RUN go build -o auth-service .
+RUN go build -o social_service .
 
 # Окончательный образ, минимизированный и без лишних зависимостей
 FROM alpine:latest
 
 # Копируем бинарный файл из предыдущего образа в окончательный образ
-COPY --from=builder /app/auth-service /usr/local/bin/auth-service
+COPY --from=builder /app/social-service /usr/local/bin/social_service
 
 # Запуск микросервиса при запуске контейнера
-CMD ["auth-service"]
+CMD ["social-service"]

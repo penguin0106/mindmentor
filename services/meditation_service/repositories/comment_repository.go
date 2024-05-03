@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"database/sql"
-	"mindmentor/shared/models"
+	"mindmentor/services/meditation_service/models"
 )
 
 // CommentRepository представляет собой репозиторий для работы с комментариями к курсам медитации

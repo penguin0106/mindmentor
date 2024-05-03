@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	models2 "mindmentor/services/social_service/models"
 	"mindmentor/services/social_service/services"
-	"mindmentor/shared/models"
 	"net/http"
 	"strconv"
 )
@@ -20,7 +20,7 @@ func NewDiscussionHandler(discussionService *services.DiscussionService) *Discus
 }
 
 func (h *DiscussionHandler) CreateDiscussionHandler(w http.ResponseWriter, r *http.Request) {
-	var discussion models.Discussion
+	var discussion models2.Discussion
 	err := json.NewDecoder(r.Body).Decode(&discussion)
 	if err != nil {
 		http.Error(w, "Неверный формат данных", http.StatusBadRequest)
@@ -134,7 +134,7 @@ func (h *DiscussionHandler) LeaveDiscussionHandler(w http.ResponseWriter, r *htt
 
 func (h *DiscussionHandler) UpdateMessageHandler(w http.ResponseWriter, r *http.Request) {
 	// Получаем данные сообщения из тела запроса
-	var message models.Message
+	var message models2.Message
 	err := json.NewDecoder(r.Body).Decode(&message)
 	if err != nil {
 		http.Error(w, "Неверный формат данных сообщения", http.StatusBadRequest)

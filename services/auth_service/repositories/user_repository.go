@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"database/sql"
-	"mindmentor/shared/models"
+	"mindmentor/services/auth_service/models"
 )
 
 // UserRepository представляет репозиторий пользователей

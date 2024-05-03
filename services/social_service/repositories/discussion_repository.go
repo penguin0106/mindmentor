@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"mindmentor/shared/models"
+	"mindmentor/services/social_service/models"
 	"time"
 )
 

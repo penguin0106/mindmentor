@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"database/sql"
-	"mindmentor/shared/models"
+	"mindmentor/services/profile_service/models"
 )
 
 type UserRepository struct {

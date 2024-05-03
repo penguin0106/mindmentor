@@ -1,8 +1,8 @@
 package services
 
 import (
+	"mindmentor/services/meditation_service/models"
 	"mindmentor/services/meditation_service/repositories"
-	"mindmentor/shared/models"
 )
 
 type MusicService struct {

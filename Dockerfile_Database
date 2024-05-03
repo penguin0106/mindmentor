@@ -4,9 +4,17 @@ FROM golang:latest as builder
 # Установка переменной окружения GO111MODULE в значение on
 ENV GO111MODULE=on
 
+
+
 # Копируем файлы проекта в рабочую директорию контейнера
 WORKDIR /app
-COPY . .
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
+COPY services/database_service .
 
 # Сборка бинарного файла микросервиса
 RUN go build -o database_service .

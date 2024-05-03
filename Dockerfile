@@ -6,16 +6,22 @@ ENV GO111MODULE=on
 
 # Копируем файлы проекта в рабочую директорию контейнера
 WORKDIR /app
-COPY . .
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
+COPY api_gateway .
 
 # Сборка бинарного файла микросервиса
-RUN go build -o emotions-service .
+RUN go build -o api_gateway .
 
 # Окончательный образ, минимизированный и без лишних зависимостей
 FROM alpine:latest
 
 # Копируем бинарный файл из предыдущего образа в окончательный образ
-COPY --from=builder /app/emotions-service /usr/local/bin/emotions-service
+COPY --from=builder /app/api_gateway /usr/local/bin/api_gateway
 
 # Запуск микросервиса при запуске контейнера
-CMD ["emotions-service"]
+CMD ["api_gateway"]

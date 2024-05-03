@@ -3,7 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
-	"mindmentor/shared/models"
+	"mindmentor/services/trainings_service/models"
 	"time"
 )
 
