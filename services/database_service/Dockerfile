@@ -1,5 +1,21 @@
-# Указываем базовый образ
-FROM postgres:latest
+# Используем образ Golang в качестве базового образа
+FROM golang:latest as builder
 
-# Копируем SQL-скрипты для инициализации базы данных
-COPY init.sql /docker-entrypoint-initdb.d/
+# Установка переменной окружения GO111MODULE в значение on
+ENV GO111MODULE=on
+
+# Копируем файлы проекта в рабочую директорию контейнера
+WORKDIR /app
+COPY . .
+
+# Сборка бинарного файла микросервиса
+RUN go build -o database_service .
+
+# Окончательный образ, минимизированный и без лишних зависимостей
+FROM alpine:latest
+
+# Копируем бинарный файл из предыдущего образа в окончательный образ
+COPY --from=builder /app/database_service /usr/local/bin/database_service
+
+# Запуск микросервиса при запуске контейнера
+CMD ["database_service"]
