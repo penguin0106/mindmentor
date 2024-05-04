@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"github.com/penguin0106/mindmentor/services/auth_service/handlers"
-	"github.com/penguin0106/mindmentor/services/auth_service/repositories"
-	"github.com/penguin0106/mindmentor/services/auth_service/services"
 	"log"
+	"mindmentor/services/auth_service/handlers"
+	"mindmentor/services/auth_service/repositories"
+	"mindmentor/services/auth_service/services"
 	"net/http"
 )
 

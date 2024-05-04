@@ -1,24 +1,16 @@
 version: '3.8'
 
 services:
-  api_gateway:
+  database_service:
     build:
-        context: ./api_gateway
-        dockerfile: Dockerfile
+      context: ./
+      dockerfile: ./Dockerfile_Database
     ports:
-      - "8090:8090"
-    depends_on:
-      - auth_service
-      - database_service
-      - emotions_service
-      - meditation_service
-      - profile_service
-      - social_service
-      - trainings_service
+      - "5432:5432"
 
   auth_service:
     build:
-        context: ./services/auth_service
+        context: ./
         dockerfile: ./Dockerfile_Auth
     ports:
       - "8081:8081"
@@ -27,12 +19,6 @@ services:
     depends_on:
       - database_service
 
-  database_service:
-    build:
-      context: ./
-      dockerfile: ./Dockerfile_Database
-    ports:
-      - "5432:5432"
 
   emotions_service:
     build:
@@ -40,6 +26,8 @@ services:
       dockerfile: ./Dockerfile_Emotions
     ports:
       - "8082:8082"
+    environment:
+      - DATABASE_URL=postgres://mindmentor:postgres@database_service:5432/mindmentor?sslmode=disable
     depends_on:
       - database_service
 
@@ -49,6 +37,8 @@ services:
       dockerfile: ./Dockerfile_Meditation
     ports:
       - "8083:8083"
+    environment:
+      - DATABASE_URL=postgres://mindmentor:postgres@database_service:5432/mindmentor?sslmode=disable
     depends_on:
       - database_service
 
@@ -58,17 +48,19 @@ services:
       dockerfile: ./Dockerfile_Profile
     ports:
       - "8086:8086"
+    environment:
+      - DATABASE_URL=postgres://mindmentor:postgres@database_service:5432/mindmentor?sslmode=disable
     depends_on:
       - database_service
 
-  social_service:
-    build:
-      context: ./
-      dockerfile: ./Dockerfile_Social
-    ports:
-      - "8084:8084"
-    depends_on:
-      - database_service
+#  social_service:
+#    build:
+#      context: ./services/social_service
+#      dockerfile: ./Dockerfile_Social
+#    ports:
+#      - "8084:8084"
+#    depends_on:
+#      - database_service
 
   trainings_service:
     build:
@@ -76,5 +68,22 @@ services:
       dockerfile: ./Dockerfile_Trainings
     ports:
       - "8085:8085"
+    environment:
+      - DATABASE_URL=postgres://mindmentor:postgres@database_service:5432/mindmentor?sslmode=disable
     depends_on:
       - database_service
+
+  api_gateway:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    depends_on:
+      - auth_service
+      - database_service
+      - emotions_service
+      - meditation_service
+      - profile_service
+#      - social_service
+      - trainings_service
