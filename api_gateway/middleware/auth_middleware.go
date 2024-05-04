@@ -1,16 +1,23 @@
 package middleware
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"database/sql"
-	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	_ "github.com/lib/pq"
+	"encoding/base64"
+	"encoding/json"
 	"mindmentor/services/auth_service/models"
-	"mindmentor/services/auth_service/repositories"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
+
+// TokenClaims представляет структуру токена JWT
+type TokenClaims struct {
+	Exp    int64  `json:"exp"`     // Срок действия токена (timestamp)
+	UserID string `json:"user_id"` // Идентификатор пользователя
+}
 
 // AuthMiddleware выполняет проверку аутентификации пользователя
 func AuthMiddleware(next http.Handler) http.Handler {
@@ -52,81 +59,97 @@ func IsAuthenticated(r *http.Request) bool {
 
 // IsTokenValid Функция для проверки валидности токена
 func IsTokenValid(tokenString string) bool {
-	// Парсим JWT-токен
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Проверяем алгоритм подписи
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("неподдерживаемый алгоритм подписи")
-		}
-		// Возвращаем секретный ключ для проверки подписи
-		return []byte("your_secret_key"), nil
-	})
+	parts := strings.Split(tokenString, ".")
+	if len(parts) != 3 {
+		return false
+	}
+
+	// Декодируем заголовок
+	_, err := base64.RawURLEncoding.DecodeString(parts[0])
+	if err != nil {
+		return false
+	}
+
+	// Декодируем полезную нагрузку
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
 	if err != nil {
 		return false
 	}
 
 	// Проверяем срок действия токена
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		exp := time.Unix(int64(claims["exp"].(float64)), 0)
-		if exp.Before(time.Now()) {
-			return false
-		}
-
-		userID, ok := claims["user_id"].(string)
-		if !ok {
-			return false
-		}
-
-		userRepo := &repositories.UserRepository{}
-
-		exists, err := userRepo.CheckUserExists(userID)
-		if err != nil || !exists {
-			return false
-		}
-		return true
-
-	}
-
-	return false
-}
-
-// IsUserExistsByID Функция для получения пользователя из базы данных по ID
-func IsUserExistsByID(userID int) bool {
-	// Get user from the database
-	user, err := GetUserByID(userID)
+	var claims TokenClaims
+	err = json.Unmarshal(payload, &claims)
 	if err != nil {
-		// Handle database query error
 		return false
 	}
-	if user == nil {
-		// User not found in the database
+	expirationTime := time.Unix(claims.Exp, 0)
+	if time.Now().After(expirationTime) {
 		return false
 	}
-	// User found in the database
+
+	// Проверяем подпись токена
+	signature, err := base64.RawURLEncoding.DecodeString(parts[2])
+	if err != nil {
+		return false
+	}
+	expectedSignature := computeHMAC(parts[0]+"."+parts[1], []byte("your_secret_key"))
+	if !hmac.Equal(expectedSignature, signature) {
+		return false
+	}
+
+	// Проверяем существование пользователя в базе данных
+	userID, err := strconv.Atoi(claims.UserID)
+	if err != nil || !IsUserExistsByID(userID) {
+		return false
+	}
+
 	return true
 }
 
-// GetUserByID retrieves a user from the database based on the provided ID
+// Функция для вычисления HMAC для подписи токена
+func computeHMAC(data string, key []byte) []byte {
+	h := hmac.New(sha256.New, key)
+	h.Write([]byte(data))
+	return h.Sum(nil)
+}
+
+// IsUserExistsByID Функция для проверки существования пользователя в базе данных по ID
+func IsUserExistsByID(userID int) bool {
+	// Получаем пользователя из базы данных
+	user, err := GetUserByID(userID)
+	if err != nil {
+		// Обработка ошибки запроса к базе данных
+		return false
+	}
+	if user == nil {
+		// Пользователь не найден в базе данных
+		return false
+	}
+	// Пользователь найден в базе данных
+	return true
+}
+
+// GetUserByID Функция для получения пользователя из базы данных по ID
 func GetUserByID(userID int) (*models.User, error) {
-	// Connect to the database
+	// Подключение к базе данных
 	db, err := sql.Open("postgres", "postgres://mindmentor:postgres@database_service:5432/mindmentor?sslmode=disable")
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	// SQL query to get user information by ID
+	// SQL-запрос для получения информации о пользователе по ID
 	query := "SELECT id, username, email FROM users WHERE id = $1"
 
-	// Execute the SQL query
+	// Выполнение SQL-запроса
 	var user models.User
 	err = db.QueryRow(query, userID).Scan(&user.ID, &user.Username, &user.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// User not found
+			// Пользователь не найден
 			return nil, nil
 		}
-		// Error executing the query
+		// Ошибка при выполнении запроса
 		return nil, err
 	}
 
