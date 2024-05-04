@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"database/sql"
-	"mindmentor/services/auth_service/models"
+	"github.com/penguin0106/mindmentor/services/auth_service/models"
 )
 
 // UserRepository представляет репозиторий пользователей

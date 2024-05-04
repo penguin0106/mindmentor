@@ -1,4 +1,4 @@
-module mindmentor
+module github.com/penguin0106/mindmentor
 
 go 1.22.0
 

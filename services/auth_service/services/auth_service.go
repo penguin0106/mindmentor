@@ -2,8 +2,8 @@ package services
 
 import (
 	"errors"
-	"mindmentor/services/auth_service/models"
-	"mindmentor/services/auth_service/repositories"
+	"github.com/penguin0106/mindmentor/services/auth_service/models"
+	"github.com/penguin0106/mindmentor/services/auth_service/repositories"
 	"regexp"
 )
 
