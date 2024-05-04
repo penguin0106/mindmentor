@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"mindmentor/services/auth_service/models"
-	"mindmentor/services/auth_service/services"
+	"github.com/penguin0106/mindmentor/services/auth_service/models"
+	"github.com/penguin0106/mindmentor/services/auth_service/services"
 	"net/http"
 )
 
