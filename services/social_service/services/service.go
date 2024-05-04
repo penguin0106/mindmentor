@@ -24,8 +24,8 @@ func (s *DiscussionService) FindDiscussion(topic string) (*models.Discussion, er
 	return s.Repo.FindDiscussion(topic)
 }
 
-func (s *DiscussionService) JoinDiscussion(ctx context.Context, userID, discussionID int, userMessageRepo repositories.UserMessageRepository) error {
-	return s.Repo.JoinDiscussion(ctx, userID, discussionID, userMessageRepo)
+func (s *DiscussionService) JoinDiscussion(ctx context.Context, userID, discussionID int) error {
+	return s.Repo.JoinDiscussion(ctx, userID, discussionID)
 }
 
 func (s *DiscussionService) LeaveDiscussion(userID, discussionID int) error {

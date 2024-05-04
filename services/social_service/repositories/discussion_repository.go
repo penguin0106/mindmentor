@@ -50,6 +50,18 @@ func (r *DiscussionRepository) FindDiscussion(topic string) (*models.Discussion,
 
 // JoinDiscussion добавляет пользователя к обсуждению в базе данных
 func (r *DiscussionRepository) JoinDiscussion(ctx context.Context, userID, discussionID int, userMessageRepo UserMessageRepository) error {
+	if userMessageRepo == nil {
+		return errors.New("userMessageRepo is nil")
+	}
+
+	if discussionID <= 0 {
+		return errors.New("discussionID must be greater than zero")
+	}
+
+	if userID <= 0 {
+		return errors.New("userID must be greater than zero")
+	}
+
 	query := "INSERT INTO user_discussions (user_id, discussion_id) VALUES ($1, $2)"
 	_, err := r.DB.ExecContext(ctx, query, userID, discussionID)
 	if err != nil {
