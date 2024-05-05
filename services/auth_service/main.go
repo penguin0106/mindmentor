@@ -24,9 +24,11 @@ func main() {
 	// Инициализация сервиса авторизации
 	authService := services.NewAuthService(userRepo)
 
+	authHandler := handlers.NewAuthHandler(authService)
+
 	// Настройка HTTP обработчиков
-	http.HandleFunc("/register", handlers.RegisterHandler(authService))
-	http.HandleFunc("/login", handlers.LoginHandler(authService))
+	http.HandleFunc("/register", authHandler.RegisterUserHandler)
+	http.HandleFunc("/login", authHandler.AuthenticateUserHandler)
 
 	// Запуск сервера
 	fmt.Println("Authentication service is running on port 8081...")
