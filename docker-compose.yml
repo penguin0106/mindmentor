@@ -3,15 +3,15 @@ version: '3.8'
 services:
   database_service:
     build:
-      context: ./
-      dockerfile: ./Dockerfile_Database
+      context: services/database_service
+      dockerfile: Dockerfile_Database
     ports:
       - "5432:5432"
 
   auth_service:
     build:
-        context: ./
-        dockerfile: ./Dockerfile_Auth
+        context: services/auth_service
+        dockerfile: Dockerfile_Auth
     ports:
       - "8081:8081"
     environment:
@@ -21,8 +21,8 @@ services:
 
   emotions_service:
     build:
-      context: ./
-      dockerfile: ./Dockerfile_Emotions
+      context: services/emotions_service
+      dockerfile: Dockerfile_Emotions
     ports:
       - "8082:8082"
     depends_on:
@@ -30,8 +30,8 @@ services:
 
   meditation_service:
     build:
-      context: ./
-      dockerfile: ./Dockerfile_Meditation
+      context: services/meditation_service
+      dockerfile: Dockerfile_Meditation
     ports:
       - "8083:8083"
     depends_on:
@@ -39,8 +39,8 @@ services:
 
   profile_service:
     build:
-      context: ./
-      dockerfile: ./Dockerfile_Profile
+      context: services/profile_service
+      dockerfile: Dockerfile_Profile
     ports:
       - "8086:8086"
     depends_on:
@@ -48,8 +48,8 @@ services:
 
 #  social_service:
 #    build:
-#      context: ./
-#      dockerfile: ./Dockerfile_Social
+#      context: services/social_service
+#      dockerfile: Dockerfile_Social
 #    ports:
 #      - "8084:8084"
 #    depends_on:
@@ -57,8 +57,8 @@ services:
 
   trainings_service:
     build:
-      context: ./
-      dockerfile: ./Dockerfile_Trainings
+      context: services/trainings_service
+      dockerfile: Dockerfile_Trainings
     ports:
       - "8085:8085"
     depends_on:
@@ -66,7 +66,7 @@ services:
 
   api_gateway:
     build:
-      context: ./
+      context: api_gateway
       dockerfile: Dockerfile
     ports:
       - "8090:8090"

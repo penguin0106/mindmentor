@@ -1,8 +1,8 @@
 package services
 
 import (
-	"mindmentor/services/emotions_service/models"
-	"mindmentor/services/emotions_service/repositories"
+	"emotions_service/models"
+	"emotions_service/repositories"
 )
 
 type EmotionService struct {

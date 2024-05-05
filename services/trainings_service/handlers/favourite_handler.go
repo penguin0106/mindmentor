@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"fmt"
-	"mindmentor/services/trainings_service/services"
 	"net/http"
 	"strconv"
+	"trainings_service/services"
 )
 
 // FavoriteHandler представляет обработчик HTTP-запросов для работы с избранными тренировками

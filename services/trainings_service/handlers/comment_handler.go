@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"mindmentor/services/trainings_service/models"
-	"mindmentor/services/trainings_service/services"
 	"net/http"
 	"strconv"
 	"time"
+	"trainings_service/models"
+	"trainings_service/services"
 )
 
 // CommentHandler представляет обработчик HTTP-запросов для работы с комментариями

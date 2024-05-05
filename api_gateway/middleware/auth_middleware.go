@@ -1,12 +1,12 @@
 package middleware
 
 import (
+	"api_gateway/models"
 	"crypto/hmac"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
-	"mindmentor/services/auth_service/models"
 	"net/http"
 	"strconv"
 	"strings"

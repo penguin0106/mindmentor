@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 	"errors"
-	"mindmentor/services/social_service/models"
-	"mindmentor/services/social_service/repositories"
+	"social_service/models"
+	"social_service/repositories"
 	"time"
 )
 

@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"mindmentor/services/trainings_service/repositories"
+	"trainings_service/repositories"
 )
 
 type FavoriteService struct {

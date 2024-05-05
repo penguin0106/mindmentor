@@ -1,8 +1,8 @@
 package services
 
 import (
-	"mindmentor/services/profile_service/models"
-	"mindmentor/services/profile_service/repositories"
+	"profile_service/models"
+	"profile_service/repositories"
 )
 
 type UserService struct {

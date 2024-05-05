@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"mindmentor/services/meditation_service/services"
+	"meditation_service/services"
 	"net/http"
 	"strconv"
 )

@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	_ "github.com/lib/pq"
 	"log"
-	"mindmentor/services/meditation_service/handlers"
-	"mindmentor/services/meditation_service/repositories"
-	"mindmentor/services/meditation_service/services"
+	"meditation_service/handlers"
+	"meditation_service/repositories"
+	"meditation_service/services"
 	"net/http"
 )
 

@@ -1,13 +1,13 @@
 package main
 
 import (
+	"auth_service/handlers"
+	"auth_service/repositories"
+	"auth_service/services"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
 	"log"
-	"mindmentor/services/auth_service/handlers"
-	"mindmentor/services/auth_service/repositories"
-	"mindmentor/services/auth_service/services"
 	"net/http"
 )
 

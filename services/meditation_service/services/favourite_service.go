@@ -1,6 +1,6 @@
 package services
 
-import "mindmentor/services/meditation_service/repositories"
+import "meditation_service/repositories"
 
 type FavoriteService struct {
 	FavoriteRepo *repositories.FavoriteRepository

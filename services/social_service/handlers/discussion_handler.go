@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	models2 "mindmentor/services/social_service/models"
-	"mindmentor/services/social_service/services"
 	"net/http"
+	models2 "social_service/models"
+	"social_service/services"
 	"strconv"
 )
 

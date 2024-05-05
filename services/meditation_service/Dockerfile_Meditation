@@ -10,8 +10,6 @@ RUN go mod download
 
 COPY . .
 
-WORKDIR /app/api_gateway
-
 # Сборка бинарного файла микросервиса
 RUN go build -o main .
 

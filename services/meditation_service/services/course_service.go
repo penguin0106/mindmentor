@@ -2,8 +2,8 @@ package services
 
 import (
 	"errors"
-	"mindmentor/services/meditation_service/models"
-	"mindmentor/services/meditation_service/repositories"
+	"meditation_service/models"
+	"meditation_service/repositories"
 )
 
 type CourseService struct {

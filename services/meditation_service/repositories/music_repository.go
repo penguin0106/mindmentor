@@ -3,7 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
-	"mindmentor/services/meditation_service/models"
+	"meditation_service/models"
 )
 
 // MusicRepository представляет собой репозиторий для работы с музыкой для медитации

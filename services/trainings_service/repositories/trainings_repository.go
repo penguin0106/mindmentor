@@ -3,7 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
-	"mindmentor/services/trainings_service/models"
+	"trainings_service/models"
 )
 
 // TrainingRepository представляет репозиторий для работы с тренировками

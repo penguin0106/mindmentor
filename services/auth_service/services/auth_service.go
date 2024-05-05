@@ -1,9 +1,9 @@
 package services
 
 import (
+	"auth_service/models"
+	"auth_service/repositories"
 	"errors"
-	"mindmentor/services/auth_service/models"
-	"mindmentor/services/auth_service/repositories"
 	"regexp"
 )
 

@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"database/sql"
+	"emotions_service/models"
 	"errors"
-	"mindmentor/services/emotions_service/models"
 	"time"
 )
 

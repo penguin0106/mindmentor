@@ -3,8 +3,8 @@ package repositories
 import (
 	"database/sql"
 	"errors"
-	"mindmentor/services/trainings_service/models"
 	"time"
+	"trainings_service/models"
 )
 
 // CommentRepository представляет репозиторий для работы с комментариями и рейтингом тренировок

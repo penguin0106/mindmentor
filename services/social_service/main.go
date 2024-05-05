@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	_ "github.com/lib/pq"
 	"log"
-	"mindmentor/services/social_service/handlers"
-	"mindmentor/services/social_service/repositories"
-	"mindmentor/services/social_service/services"
 	"net/http"
+	"social_service/handlers"
+	"social_service/repositories"
+	"social_service/services"
 )
 
 func main() {

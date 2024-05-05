@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-	"mindmentor/services/trainings_service/models"
-	"mindmentor/services/trainings_service/services"
 	"net/http"
+	"trainings_service/models"
+	"trainings_service/services"
 )
 
 // TrainingHandler представляет обработчик HTTP-запросов для работы с тренировками

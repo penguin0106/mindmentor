@@ -2,11 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"emotions_service/handlers"
+	"emotions_service/repositories"
+	"emotions_service/services"
 	_ "github.com/lib/pq"
 	"log"
-	"mindmentor/services/emotions_service/handlers"
-	"mindmentor/services/emotions_service/repositories"
-	"mindmentor/services/emotions_service/services"
 	"net/http"
 )
 

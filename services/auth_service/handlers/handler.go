@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	"auth_service/models"
+	"auth_service/services"
 	"encoding/json"
 	"fmt"
-	"mindmentor/services/auth_service/models"
-	"mindmentor/services/auth_service/services"
 	"net/http"
 )
 

@@ -1,10 +1,10 @@
 package main
 
 import (
+	"api_gateway/middleware"
 	"fmt"
 	"io"
 	"log"
-	"mindmentor/api_gateway/middleware"
 	"net/http"
 )
 
