@@ -18,19 +18,23 @@ func main() {
 	}
 	// Инициализация репозиториев
 	discussionRepo := repositories.NewDiscussionRepository(db)
+	messageRepo := repositories.NewMessageRepository(db)
 
 	discService := services.NewDiscussionService(discussionRepo)
+	messageService := services.NewMessageService(messageRepo)
 
 	// Инициализация обработчиков
 	discussionHandler := handlers.NewDiscussionHandler(discService)
+	messageHandler := handlers.NewMessageHandler(messageService)
 
 	// Регистрация HTTP обработчиков
-	http.HandleFunc("/discussions/create", discussionHandler.CreateDiscussionHandler)
+	http.HandleFunc("/discussions/add", discussionHandler.AddDiscussionHandler)
 	http.HandleFunc("/discussions/find", discussionHandler.FindDiscussionHandler)
 	http.HandleFunc("/discussions/join", discussionHandler.JoinDiscussionHandler)
 	http.HandleFunc("/discussions/leave", discussionHandler.LeaveDiscussionHandler)
-	http.HandleFunc("/messages/update", discussionHandler.UpdateMessageHandler)
-	http.HandleFunc("/messages/delete", discussionHandler.DeleteMessageHandler)
+	http.HandleFunc("messages/send", messageHandler.SendMessageHandler)
+	http.HandleFunc("/messages/edit", messageHandler.EditMessageHandler)
+	http.HandleFunc("/messages/delete", messageHandler.DeleteMessageHandler)
 
 	// Запуск сервера
 	http.ListenAndServe(":8084", nil)
