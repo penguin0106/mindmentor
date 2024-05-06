@@ -7,17 +7,12 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	_ "github.com/lib/pq"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 )
-
-// TokenClaims представляет структуру токена JWT
-type TokenClaims struct {
-	Exp    int64  `json:"exp"`     // Срок действия токена (timestamp)
-	UserID string `json:"user_id"` // Идентификатор пользователя
-}
 
 // AuthMiddleware выполняет проверку аутентификации пользователя
 func AuthMiddleware(next http.Handler) http.Handler {
@@ -77,7 +72,7 @@ func IsTokenValid(tokenString string) bool {
 	}
 
 	// Проверяем срок действия токена
-	var claims TokenClaims
+	var claims models.TokenClaims
 	err = json.Unmarshal(payload, &claims)
 	if err != nil {
 		return false
