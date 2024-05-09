@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defaultHost     = "localhost"
+	defaultHost     = "database_postgres"
 	defaultPort     = "5432"
 	defaultUser     = "postgres"
 	defaultPassword = "mindmentor"
