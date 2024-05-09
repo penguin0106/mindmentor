@@ -1,0 +1,18 @@
+FROM node:19.8.1-alpine as build
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN chmod +x /app/scripts/*.sh
+
+RUN npm run build
+
+CMD cp -r build result_build
+
+
+CMD ["npm", "start"]

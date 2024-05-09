@@ -1,5 +1,6 @@
 FROM golang:latest
 
+RUN apt-get update && apt-get install -y postgresql-client
 # Копируем файлы проекта в рабочую директорию контейнера
 WORKDIR /app
 
@@ -12,7 +13,6 @@ COPY . .
 
 # Сборка бинарного файла микросервиса
 RUN go build -o main .
-
 
 # Запуск микросервиса при запуске контейнера
 CMD ["./main"]

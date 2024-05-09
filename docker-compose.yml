@@ -7,7 +7,6 @@ services:
       dockerfile: Dockerfile_Database
     ports:
       - "5432:5432"
-
   auth_service:
     build:
         context: services/auth_service
@@ -61,7 +60,14 @@ services:
       - "8085:8085"
     depends_on:
       - database_service
-
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile_front
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api_gateway
   api_gateway:
     build:
       context: api_gateway
