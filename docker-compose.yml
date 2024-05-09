@@ -1,5 +1,8 @@
 version: '3.8'
 
+volumes:
+  postgres_data:
+
 services:
   database_service:
     build:
@@ -9,14 +12,22 @@ services:
       - "8000:8000"
     depends_on:
       - database_postgres
+    networks:
+      - my-network
+
   database_postgres:
-    image: postgres:13
-    ports:
-      - "5432:5432"
+    image: postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mindmentor
       POSTGRES_DB: mindmentor
+    ports:
+      - "5432:5432"
+    volumes:
+       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my-network
+
   auth_service:
     build:
         context: services/auth_service
@@ -25,6 +36,8 @@ services:
       - "8081:8081"
     depends_on:
       - database_postgres
+    networks:
+      - my-network
 
   emotions_service:
     build:
@@ -34,6 +47,8 @@ services:
       - "8082:8082"
     depends_on:
       - database_service
+    networks:
+      - my-network
 
   meditation_service:
     build:
@@ -43,6 +58,8 @@ services:
       - "8083:8083"
     depends_on:
       - database_service
+    networks:
+      - my-network
 
   profile_service:
     build:
@@ -52,6 +69,8 @@ services:
       - "8086:8086"
     depends_on:
       - database_service
+    networks:
+      - my-network
 
   social_service:
     build:
@@ -61,6 +80,8 @@ services:
       - "8084:8084"
     depends_on:
       - database_service
+    networks:
+      - my-network
 
   trainings_service:
     build:
@@ -70,14 +91,9 @@ services:
       - "8085:8085"
     depends_on:
       - database_service
-  frontend:
-    build:
-      context: ./front
-      dockerfile: Dockerfile_front
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api_gateway
+    networks:
+      - my-network
+
   api_gateway:
     build:
       context: api_gateway
@@ -93,3 +109,19 @@ services:
       - social_service
       - trainings_service
       - database_postgres
+    networks:
+      - my-network
+
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile_front
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api_gateway
+    networks:
+      - my-network
+
+networks:
+  my-network:
