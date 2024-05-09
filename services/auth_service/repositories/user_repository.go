@@ -24,7 +24,7 @@ func (repo *UserRepository) Save(user *models.User) error {
 		return err
 	}
 	if existingUser != nil {
-		return errors.New("Пользователь с таким email уже зарегистрирован")
+		return errors.New("пользователь с таким email уже зарегистрирован")
 	}
 
 	// Проверяем уникальность username
@@ -33,7 +33,7 @@ func (repo *UserRepository) Save(user *models.User) error {
 		return err
 	}
 	if existingUsername != nil {
-		return errors.New("Данный логин уже занят, выберите другой")
+		return errors.New("данный логин уже занят, выберите другой")
 	}
 
 	_, err = repo.DB.Exec("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", user.Username, user.Email, user.Password)
@@ -88,5 +88,5 @@ func (repo *UserRepository) Authenticate(identifier, password string) (*models.U
 		return user, nil
 	}
 	// Если пользователь не найден или пароль не совпадает, возвращаем ошибку
-	return nil, errors.New("Неверные учетные данные")
+	return nil, errors.New("неверные учетные данные")
 }

@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	databaseServiceURL   = "http://database_service:5432"
-	authServiceURL       = "http://auth_service:8081"
-	emotionsServiceURL   = "http://emotions_service:8082"
-	meditationServiceURL = "http://meditation_service:8083"
-	socialServiceURL     = "http://social_service:8084"
-	trainingsServiceURL  = "http://trainings_service:8085"
-	profileServiceURL    = "http://profile_service:8086"
+	databaseServiceURL   = "http://localhost:5432"
+	authServiceURL       = "http://localhost:8081"
+	emotionsServiceURL   = "http://localhost:8082"
+	meditationServiceURL = "http://localhost:8083"
+	socialServiceURL     = "http://localhost:8084"
+	trainingsServiceURL  = "http://localhost:8085"
+	profileServiceURL    = "http://localhost:8086"
 )
 
 func main() {

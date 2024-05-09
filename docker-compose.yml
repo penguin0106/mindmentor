@@ -13,7 +13,7 @@ services:
     depends_on:
       - database_postgres
     networks:
-      - my-network
+      - my_network
 
   database_postgres:
     image: postgres
@@ -24,20 +24,20 @@ services:
     ports:
       - "5432:5432"
     volumes:
-       - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - my-network
+      - my_network
 
   auth_service:
     build:
-        context: services/auth_service
-        dockerfile: Dockerfile_Auth
+      context: services/auth_service
+      dockerfile: Dockerfile_Auth
     ports:
       - "8081:8081"
     depends_on:
       - database_postgres
     networks:
-      - my-network
+      - my_network
 
   emotions_service:
     build:
@@ -48,7 +48,7 @@ services:
     depends_on:
       - database_service
     networks:
-      - my-network
+      - my_network
 
   meditation_service:
     build:
@@ -59,7 +59,7 @@ services:
     depends_on:
       - database_service
     networks:
-      - my-network
+      - my_network
 
   profile_service:
     build:
@@ -70,7 +70,7 @@ services:
     depends_on:
       - database_service
     networks:
-      - my-network
+      - my_network
 
   social_service:
     build:
@@ -81,7 +81,7 @@ services:
     depends_on:
       - database_service
     networks:
-      - my-network
+      - my_network
 
   trainings_service:
     build:
@@ -92,7 +92,7 @@ services:
     depends_on:
       - database_service
     networks:
-      - my-network
+      - my_network
 
   api_gateway:
     build:
@@ -110,18 +110,7 @@ services:
       - trainings_service
       - database_postgres
     networks:
-      - my-network
-
-  frontend:
-    build:
-      context: ./front
-      dockerfile: Dockerfile_front
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api_gateway
-    networks:
-      - my-network
+      - my_network
 
 networks:
-  my-network:
+  my_network:
