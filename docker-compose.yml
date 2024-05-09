@@ -12,7 +12,9 @@ services:
       - "8000:8000"
     depends_on:
       - database_postgres
-    hostname: database_postgres
+    networks:
+      - my_network
+
   database_postgres:
     image: postgres
     environment:
@@ -23,6 +25,9 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my_network
+
   auth_service:
     build:
       context: services/auth_service
@@ -31,7 +36,9 @@ services:
       - "8081:8081"
     depends_on:
       - database_postgres
-    hostname: database_postgres
+    networks:
+      - my_network
+
   emotions_service:
     build:
       context: services/emotions_service
@@ -40,7 +47,9 @@ services:
       - "8082:8082"
     depends_on:
       - database_service
-    hostname: database_postgres
+    networks:
+      - my_network
+
   meditation_service:
     build:
       context: services/meditation_service
@@ -49,7 +58,9 @@ services:
       - "8083:8083"
     depends_on:
       - database_service
-    hostname: database_postgres
+    networks:
+      - my_network
+
   profile_service:
     build:
       context: services/profile_service
@@ -58,6 +69,8 @@ services:
       - "8086:8086"
     depends_on:
       - database_service
+    networks:
+      - my_network
 
   social_service:
     build:
@@ -67,6 +80,8 @@ services:
       - "8084:8084"
     depends_on:
       - database_service
+    networks:
+      - my_network
 
   trainings_service:
     build:
@@ -76,14 +91,9 @@ services:
       - "8085:8085"
     depends_on:
       - database_service
-#  frontend:
-#    build:
-#      context: ./front
-#      dockerfile: Dockerfile_front
-#    ports:
-#      - "3000:3000"
-#    depends_on:
-#      - api_gateway
+    networks:
+      - my_network
+
   api_gateway:
     build:
       context: api_gateway
@@ -99,4 +109,8 @@ services:
       - social_service
       - trainings_service
       - database_postgres
-    hostname: database_postgres
+    networks:
+      - my_network
+
+networks:
+  my_network:
