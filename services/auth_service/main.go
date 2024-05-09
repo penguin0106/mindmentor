@@ -11,6 +11,14 @@ import (
 	"net/http"
 )
 
+const (
+	defaultHost     = "localhost"
+	defaultPort     = "5432"
+	defaultUser     = "postgres"
+	defaultPassword = "mindmentor"
+	defaultDBName   = "mindmentor"
+)
+
 func main() {
 	// Подключение к базе данных
 	db, err := connectToDatabase()
@@ -40,6 +48,8 @@ func main() {
 
 // connectToDatabase подключается к базе данных и возвращает объект подключения
 func connectToDatabase() (*sql.DB, error) {
-	db, err := sql.Open("postgres", "postgres://mindmentor:postgres@localhost:5432/mindmentor?sslmode=disable")
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", defaultHost, defaultPort, defaultUser, defaultPassword, defaultDBName)
+	db, err := sql.Open("postgres", connStr)
+
 	return db, err
 }

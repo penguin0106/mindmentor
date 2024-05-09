@@ -92,14 +92,27 @@ func MigrateDatabaseHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Use relative path resolution for the migration script
 	scriptPath := filepath.Join("scripts", "migrate_database.sh")
+	if _, err := os.Stat(scriptPath); os.IsNotExist(err) {
+		http.Error(w, "Script not found", http.StatusInternalServerError)
+		return
+	}
+
 	cmd := exec.Command("/bin/bash", scriptPath)
 	cmd.Dir = "scripts"
 	cmd.Env = os.Environ()
 
-	if err := cmd.Run(); err != nil {
-		http.Error(w, "Failed to migrate the database", http.StatusInternalServerError)
-		return
-	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		if err := startService(cmd); err != nil {
+			http.Error(w, "Failed to migrate the database", http.StatusInternalServerError)
+			return
+		}
+	}()
+
+	wg.Wait()
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Database migrated successfully")
