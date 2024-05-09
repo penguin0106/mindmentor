@@ -10,6 +10,21 @@ import (
 	"profile_service/services"
 )
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			http.Error(w, "", http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	db, err := connectToDatabase()
 	if err != nil {
@@ -25,10 +40,10 @@ func main() {
 	userHandler := handlers.NewUserHandler(userService)
 
 	// Настройка маршрутов
-	http.HandleFunc("/user", userHandler.GetUserHandler)
-	http.HandleFunc("/user/update", userHandler.UpdateUserHandler)
-	http.HandleFunc("/favorites/course-get", userHandler.GetFavoriteCourseHandler)
-	http.HandleFunc("/favorites/training-get", userHandler.GetFavoriteTrainingHandler)
+	http.Handle("/user", corsMiddleware(http.HandlerFunc(userHandler.GetUserHandler)))
+	http.Handle("/user/update", corsMiddleware(http.HandlerFunc(userHandler.UpdateUserHandler)))
+	http.Handle("/favorites/course-get", corsMiddleware(http.HandlerFunc(userHandler.GetFavoriteCourseHandler)))
+	http.Handle("/favorites/training-get", corsMiddleware(http.HandlerFunc(userHandler.GetFavoriteTrainingHandler)))
 
 	// Запуск сервера
 	log.Println("Server started on port 8086")

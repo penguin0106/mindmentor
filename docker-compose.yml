@@ -111,6 +111,11 @@ services:
       - database_postgres
     networks:
       - my_network
-
+  frontend:
+    build:
+      context: front
+      dockerfile: Dockerfile_front
+    ports:
+      - "3000:3000"
 networks:
   my_network:

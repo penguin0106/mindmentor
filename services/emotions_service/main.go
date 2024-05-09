@@ -10,6 +10,21 @@ import (
 	"net/http"
 )
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			http.Error(w, "", http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// Подключение к базе данных
 	db, err := connectToDatabase()
@@ -25,10 +40,11 @@ func main() {
 	emotionHandler := handlers.NewEmotionHandler(emoService)
 
 	// Регистрация HTTP обработчиков
-	http.HandleFunc("/emotions", emotionHandler.CreateEmotionHandler)
-	http.HandleFunc("/emotions/update", emotionHandler.UpdateEmotionHandler)
-	http.HandleFunc("/emotions/delete", emotionHandler.DeleteEmotionHandler)
-	http.HandleFunc("/emotions/user", emotionHandler.GetEmotionsByUserHandler)
+
+	http.Handle("/emotions", corsMiddleware(http.HandlerFunc(emotionHandler.CreateEmotionHandler)))
+	http.Handle("/emotions/update", corsMiddleware(http.HandlerFunc(emotionHandler.UpdateEmotionHandler)))
+	http.Handle("/emotions/delete", corsMiddleware(http.HandlerFunc(emotionHandler.DeleteEmotionHandler)))
+	http.Handle("/emotions/user", corsMiddleware(http.HandlerFunc(emotionHandler.GetEmotionsByUserHandler)))
 
 	// Запуск сервера
 	http.ListenAndServe(":8082", nil)

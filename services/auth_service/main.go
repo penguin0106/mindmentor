@@ -19,6 +19,20 @@ const (
 	defaultDBName   = "mindmentor"
 )
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			http.Error(w, "", http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
 func main() {
 	// Подключение к базе данных
 	db, err := connectToDatabase()
@@ -35,8 +49,8 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService)
 
 	// Настройка HTTP обработчиков
-	http.HandleFunc("/register", authHandler.RegisterUserHandler)
-	http.HandleFunc("/login", authHandler.AuthenticateUserHandler)
+	http.Handle("/register", corsMiddleware(http.HandlerFunc(authHandler.RegisterUserHandler)))
+	http.Handle("/login", corsMiddleware(http.HandlerFunc(authHandler.AuthenticateUserHandler)))
 
 	// Запуск сервера
 	fmt.Println("Authentication service is running on port 8081...")

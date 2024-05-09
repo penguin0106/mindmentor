@@ -10,6 +10,21 @@ import (
 	"social_service/services"
 )
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			http.Error(w, "", http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// Подключение к базе данных
 	db, err := connectToDatabase()
@@ -28,13 +43,17 @@ func main() {
 	messageHandler := handlers.NewMessageHandler(messageService)
 
 	// Регистрация HTTP обработчиков
-	http.HandleFunc("/discussions/add", discussionHandler.AddDiscussionHandler)
-	http.HandleFunc("/discussions/find", discussionHandler.FindDiscussionHandler)
-	http.HandleFunc("/discussions/join", discussionHandler.JoinDiscussionHandler)
-	http.HandleFunc("/discussions/leave", discussionHandler.LeaveDiscussionHandler)
-	http.HandleFunc("messages/send", messageHandler.SendMessageHandler)
-	http.HandleFunc("/messages/edit", messageHandler.EditMessageHandler)
-	http.HandleFunc("/messages/delete", messageHandler.DeleteMessageHandler)
+
+	// Register discussion handler functions with CORS middleware
+	http.Handle("/discussions/add", corsMiddleware(http.HandlerFunc(discussionHandler.AddDiscussionHandler)))
+	http.Handle("/discussions/find", corsMiddleware(http.HandlerFunc(discussionHandler.FindDiscussionHandler)))
+	http.Handle("/discussions/join", corsMiddleware(http.HandlerFunc(discussionHandler.JoinDiscussionHandler)))
+	http.Handle("/discussions/leave", corsMiddleware(http.HandlerFunc(discussionHandler.LeaveDiscussionHandler)))
+
+	// Register message handler functions with CORS middleware
+	http.Handle("/messages/send", corsMiddleware(http.HandlerFunc(messageHandler.SendMessageHandler)))
+	http.Handle("/messages/edit", corsMiddleware(http.HandlerFunc(messageHandler.EditMessageHandler)))
+	http.Handle("/messages/delete", corsMiddleware(http.HandlerFunc(messageHandler.DeleteMessageHandler)))
 
 	// Запуск сервера
 	http.ListenAndServe(":8084", nil)
