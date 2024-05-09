@@ -8,11 +8,8 @@ RUN npm install
 
 COPY . .
 
-RUN chmod +x /app/scripts/*.sh
-
 RUN npm run build
 
 CMD cp -r build result_build
-
 
 CMD ["npm", "start"]

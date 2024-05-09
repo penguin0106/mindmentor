@@ -11,6 +11,8 @@ RUN go mod download
 
 COPY . .
 
+RUN chmod +x /app/scripts/*.sh
+
 # Сборка бинарного файла микросервиса
 RUN go build -o main .
 

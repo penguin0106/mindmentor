@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sync"
 
 	_ "github.com/lib/pq"
@@ -26,7 +27,7 @@ var (
 	err error
 )
 
-func startService(name string, cmd *exec.Cmd) error {
+func startService(cmd *exec.Cmd) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
@@ -37,7 +38,7 @@ func main() {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", defaultHost, defaultPort, defaultUser, defaultPassword, defaultDBName)
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal("Failed to connect to the database:", err)
 	}
 	defer db.Close() // Close the database connection
 
@@ -56,25 +57,27 @@ func CreateDatabaseHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scriptPath := "./scripts/create_database.sh"
+	// Resolve the path relatively
+	scriptPath := filepath.Join("scripts", "create_database.sh")
 	if _, err := os.Stat(scriptPath); os.IsNotExist(err) {
 		http.Error(w, "Script not found", http.StatusInternalServerError)
 		return
 	}
 
 	cmd := exec.Command("/bin/bash", scriptPath)
-	cmd.Dir = "./scripts"  // Set the working directory
-	cmd.Env = os.Environ() // Set the environment variables
+	cmd.Dir = "scripts" // Set the working directory relative to the current directory
+	cmd.Env = os.Environ()
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		if err := startService("Database", cmd); err != nil {
-			http.Error(w, "Failed to create database", http.StatusInternalServerError)
+		defer wg.Done()
+		if err := startService(cmd); err != nil {
+			http.Error(w, "Failed to create the database", http.StatusInternalServerError)
 			return
 		}
-		wg.Done()
 	}()
+
 	wg.Wait()
 
 	w.WriteHeader(http.StatusOK)
@@ -87,12 +90,14 @@ func MigrateDatabaseHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := exec.Command("/bin/bash", "scripts/migrate_database.sh")
-	cmd.Dir = "./"         // Set the working directory
-	cmd.Env = os.Environ() // Set the environment variables
+	// Use relative path resolution for the migration script
+	scriptPath := filepath.Join("scripts", "migrate_database.sh")
+	cmd := exec.Command("/bin/bash", scriptPath)
+	cmd.Dir = "scripts"
+	cmd.Env = os.Environ()
 
 	if err := cmd.Run(); err != nil {
-		http.Error(w, "Failed to migrate database", http.StatusInternalServerError)
+		http.Error(w, "Failed to migrate the database", http.StatusInternalServerError)
 		return
 	}
 
