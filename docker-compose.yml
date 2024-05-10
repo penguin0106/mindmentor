@@ -4,16 +4,6 @@ volumes:
   postgres_data:
 
 services:
-  database_service:
-    build:
-      context: services/database_service
-      dockerfile: Dockerfile_Database
-    ports:
-      - "8000:8000"
-    depends_on:
-      - database_postgres
-    networks:
-      - my_network
 
   database_postgres:
     image: postgres
@@ -25,6 +15,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     networks:
       - my_network
 
@@ -46,7 +37,7 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - database_service
+      - database_postgres
     networks:
       - my_network
 
@@ -57,7 +48,7 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - database_service
+      - database_postgres
     networks:
       - my_network
 
@@ -68,7 +59,7 @@ services:
     ports:
       - "8086:8086"
     depends_on:
-      - database_service
+      - database_postgres
     networks:
       - my_network
 
@@ -79,7 +70,7 @@ services:
     ports:
       - "8084:8084"
     depends_on:
-      - database_service
+      - database_postgres
     networks:
       - my_network
 
@@ -90,7 +81,7 @@ services:
     ports:
       - "8085:8085"
     depends_on:
-      - database_service
+      - database_postgres
     networks:
       - my_network
 
@@ -101,7 +92,6 @@ services:
     ports:
       - "8090:8090"
     depends_on:
-      - database_service
       - auth_service
       - emotions_service
       - meditation_service
@@ -111,11 +101,15 @@ services:
       - database_postgres
     networks:
       - my_network
+
   frontend:
     build:
       context: front
       dockerfile: Dockerfile_front
     ports:
       - "3000:3000"
+
+
 networks:
   my_network:
+    driver: bridge
