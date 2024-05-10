@@ -18,9 +18,9 @@ func NewEmotionRepository(db *sql.DB) *EmotionRepository {
 
 // CreateEmotion создает новую запись эмоции в базе данных
 func (r *EmotionRepository) CreateEmotion(emotion *models.Emotion) error {
-	query := "INSERT INTO emotions (topic, body, user_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)"
-	now := time.Now()
-	_, err := r.DB.Exec(query, emotion.Topic, emotion.Body, emotion.UserID, now, now)
+	query := "INSERT INTO emotions (topic, body) VALUES ($1, $2)"
+
+	_, err := r.DB.Exec(query, emotion.Topic, emotion.Body)
 	if err != nil {
 		return err
 	}
@@ -63,22 +63,22 @@ func (r *EmotionRepository) DeleteEmotion(emotionID int) error {
 }
 
 // GetEmotionsByUserID возвращает эмоции пользователя по его идентификатору
-func (r *EmotionRepository) GetEmotionsByUserID(userID int) ([]*models.Emotion, error) {
+func (r *EmotionRepository) GetEmotionsByUserID() ([]*models.Emotion, error) {
 	// Запрос к базе данных для выборки эмоций пользователя по его идентификатору
-	query := "SELECT id, topic, body, user_id, created_at FROM emotions WHERE user_id = $1"
-	rows, err := r.DB.Query(query, userID)
+	query := "SELECT id, topic, body FROM emotions"
+	rows, err := r.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	// Слайс для хранения эмоций пользователя
-	emotions := []*models.Emotion{}
+	var emotions []*models.Emotion
 
 	// Итерация по результатам запроса
 	for rows.Next() {
 		var emotion models.Emotion
-		err := rows.Scan(&emotion.ID, &emotion.Topic, &emotion.Body, &emotion.UserID, &emotion.CreatedAt)
+		err := rows.Scan(&emotion.ID, &emotion.Topic, &emotion.Body)
 		if err != nil {
 			return nil, err
 		}

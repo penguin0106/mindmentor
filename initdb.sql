@@ -48,11 +48,8 @@ CREATE TABLE IF NOT EXISTS course_favorites (
 CREATE TABLE IF NOT EXISTS emotions (
                                         id SERIAL PRIMARY KEY,
                                         topic VARCHAR(255) NOT NULL,
-                                        body TEXT,
-                                        user_id INT NOT NULL,
-                                        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-                                        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-                                        CONSTRAINT fk_user_emotions FOREIGN KEY (user_id) REFERENCES users(id)
+                                        body TEXT
+
 );
 
 CREATE TABLE IF NOT EXISTS trainings (

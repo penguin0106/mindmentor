@@ -21,23 +21,23 @@ func NewEmotionHandler(emoService *services.EmotionService) *EmotionHandler {
 
 // CreateEmotionHandler обрабатывает запрос на создание новой записи эмоции
 func (h *EmotionHandler) CreateEmotionHandler(w http.ResponseWriter, r *http.Request) {
-	var emotion models.Emotion
-	err := json.NewDecoder(r.Body).Decode(&emotion)
+	var emotionRequest struct {
+		Topic string `json:"topic"`
+		Body  string `json:"body"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&emotionRequest)
 	if err != nil {
 		http.Error(w, "Ошибка декодирования JSON", http.StatusBadRequest)
 		return
 	}
 
-	// Дополнительные проверки и валидация данных эмоции
-
-	err = h.EmotionService.CreateEmotion(&emotion)
+	err = h.EmotionService.CreateEmotion(emotionRequest.Topic, emotionRequest.Body)
 	if err != nil {
-		http.Error(w, "Ошибка создания записи эмоции", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(emotion)
 }
 
 // UpdateEmotionHandler обрабатывает запрос на обновление записи эмоции
@@ -68,33 +68,31 @@ func (h *EmotionHandler) UpdateEmotionHandler(w http.ResponseWriter, r *http.Req
 
 // DeleteEmotionHandler обрабатывает запрос на удаление записи эмоции
 func (h *EmotionHandler) DeleteEmotionHandler(w http.ResponseWriter, r *http.Request) {
-	emotionID, err := strconv.Atoi(r.URL.Query().Get("id"))
+	emotionIDStr := r.URL.Query().Get("id")
+	emotionID, err := strconv.Atoi(emotionIDStr)
 	if err != nil {
+		// В случае некорректного идентификатора, возвращаем ошибку и код 400 (BadRequest)
 		http.Error(w, "Некорректный ID эмоции", http.StatusBadRequest)
 		return
 	}
 
+	// Вызываем метод DeleteEmotion сервиса EmotionService для удаления эмоции
 	err = h.EmotionService.DeleteEmotion(emotionID)
 	if err != nil {
+		// В случае ошибки при удалении эмоции, возвращаем ошибку и код 500 (InternalServerError)
 		http.Error(w, "Ошибка удаления записи эмоции", http.StatusInternalServerError)
 		return
 	}
 
+	// В случае успешного удаления, возвращаем код 200 (OK)
 	w.WriteHeader(http.StatusOK)
 }
 
 // GetEmotionsByUserHandler обрабатывает запрос на получение эмоций пользователя
-func (h *EmotionHandler) GetEmotionsByUserHandler(w http.ResponseWriter, r *http.Request) {
-	// Получение идентификатора пользователя из запроса
-	userID, err := getUserIDFromRequest(r)
-	if err != nil {
-		// Обработка ошибки, если произошла
-		http.Error(w, "Ошибка получения идентификатора пользователя", http.StatusBadRequest)
-		return
-	}
+func (h *EmotionHandler) GetEmotionsByUserHandler(w http.ResponseWriter, _ *http.Request) {
 
 	// Получение эмоций пользователя из репозитория
-	emotions, err := h.EmotionService.GetEmotionsByUserID(userID)
+	emotions, err := h.EmotionService.GetEmotionsByUserID()
 	if err != nil {
 		http.Error(w, "Ошибка при получении эмоций пользователя", http.StatusInternalServerError)
 		return
@@ -103,25 +101,4 @@ func (h *EmotionHandler) GetEmotionsByUserHandler(w http.ResponseWriter, r *http
 	// Кодируем эмоции в JSON и отправляем клиенту
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(emotions)
-}
-
-// getUserIDFromRequest извлекает идентификатор пользователя из запроса
-func getUserIDFromRequest(r *http.Request) (int, error) {
-	// Извлекаем параметр "user_id" из строки запроса
-	userID := r.URL.Query().Get("user_id")
-
-	// Проверяем, что параметр не пустой
-	if userID == "" {
-		return 0, nil // Возвращаем 0 в случае отсутствия или неверного идентификатора
-	}
-
-	// Преобразуем полученный идентификатор в целочисленное значение
-	id, err := strconv.Atoi(userID)
-	if err != nil {
-		// Если произошла ошибка преобразования, возвращаем ошибку
-		return 0, err
-	}
-
-	// Возвращаем полученный идентификатор пользователя
-	return id, nil
 }

@@ -1,15 +1,13 @@
 import React from 'react';
 import { Trash2} from "lucide-react";
 
-function TodoItem({ todo, onDelete, onClick,body,topic }) {
+function TodoItem({ todo, onDelete, onClick, id }) {
     return (
-        <li className="li">
-            <p style={{ width: "90%", margin: "0", padding: "10px" }} onClick={onClick}>
+        <li className="li" key={id}>
+            <p style={{ display: "flex", flexDirection: "column", justifyContent: "center" }} onClick={onClick}>
 
-                {
-                    body
-                }
-
+                <h1 style={{fontSize:"19px"}}> {todo.topic}</h1>
+                {todo.body}
             </p>
             <Trash2 size={20} className="icon" onClick={onDelete} />
         </li>
