@@ -19,6 +19,9 @@ const TodoForm = ({ onSave, emotion, onDelete }) => {
         body: JSON.stringify(todo),
       });
       handleCloseModal()
+      const responseGet = await fetch('http://localhost:8082/emotions/user');
+      const data = await responseGet.json();
+      setTodos(data);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
