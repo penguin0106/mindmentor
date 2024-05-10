@@ -1,0 +1,40 @@
+.container {
+    width:100vw;
+}
+.main-video-grid .ul .li {
+    text-decoration: none;
+    list-style: none;
+}
+
+.wistia-vid-img {
+    width: 100%;
+}
+
+.feature-video {
+    width: 40%;
+    float: left;
+    margin: 2%;
+    background: #a1a1a1;
+}
+
+.feature-video a {
+    text-decoration: none;
+}
+
+.feature-video .video img {
+}
+
+.video-grid {
+    display: block;
+    background-color: #eee;
+    border-bottom: 5px solid #101820;
+    margin: 1%;
+    padding: 1%;
+    width: 70%;
+    min-height: 600px;
+    float: left;
+}
+
+.video-grid-logo {
+    max-width: 100%;
+}

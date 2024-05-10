@@ -1,0 +1,205 @@
+
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  display: flex;
+  font-size: 36px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.li {
+  background-color: #f2f2f2;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  width: 50%;
+  align-items: center;
+  height: 100px;
+}
+
+.bottom-panel {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.bottom-panel h2 {
+  margin-top: 0;
+}
+
+.add-todo-btn {
+  border: none;
+  background-color: transparent;
+  font-size: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.add-todo-btn:hover {
+  transform: scale(1.2);
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #f2f2f2;
+  padding: 20px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  height: 39%;
+  width: 50%;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.modal label {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.modal input[type="text"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 18px;
+}
+
+.modal button[type="submit"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.modal button[type="button"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #f44336;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.plus{
+  position: absolute;
+  bottom: 85px;
+  font-size: 40px;
+  border-radius: 40px;
+  width: 50px;
+  height: 50px;
+  right: 40px;
+}
+.pages{
+  width: 100vw;
+  height: 87vh;
+}
+.mus{
+  padding: 20px;
+
+}
+/* Add some basic styling to the form */
+.register-form {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style the labels */
+.form-label {
+  display: block;
+
+}
+
+.form-label:hover {
+  cursor: pointer;
+}
+
+/* Style the inputs */
+.form-input {
+  width: 450px;
+  height: 40px;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px
+;
+}
+
+/* Style the checkbox */
+.form-checkbox {
+  margin-right: 10px;
+}
+
+/* Style the submit button */
+.form-submit {
+  width: 100%;
+  height: 40px;
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.form-submit:hover {
+  background-color: #3e8e41;
+}
+.check{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px
+}
