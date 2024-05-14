@@ -7,12 +7,30 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	_ "github.com/lib/pq"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 )
+
+const (
+	defaultHost     = "database_postgres"
+	defaultPort     = "5432"
+	defaultUser     = "postgres"
+	defaultPassword = "mindmentor"
+	defaultDBName   = "mindmentor"
+)
+
+// connectToDatabase подключается к базе данных и возвращает объект подключения
+func connectToDatabase() (*sql.DB, error) {
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", defaultHost, defaultPort, defaultUser, defaultPassword, defaultDBName)
+	db, err := sql.Open("postgres", connStr)
+
+	return db, err
+}
 
 // AuthMiddleware выполняет проверку аутентификации пользователя
 func AuthMiddleware(next http.Handler) http.Handler {
@@ -127,11 +145,10 @@ func IsUserExistsByID(userID int) bool {
 // GetUserByID Функция для получения пользователя из базы данных по ID
 func GetUserByID(userID int) (*models.User, error) {
 	// Подключение к базе данных
-	db, err := sql.Open("postgres", "postgres://mindmentor:postgres@database_service:5432/mindmentor?sslmode=disable")
+	db, err := connectToDatabase()
 	if err != nil {
-		return nil, err
+		log.Fatal("Failed to connect to database:", err)
 	}
-	defer db.Close()
 
 	// SQL-запрос для получения информации о пользователе по ID
 	query := "SELECT id, username, email FROM users WHERE id = $1"

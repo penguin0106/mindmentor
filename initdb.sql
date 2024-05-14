@@ -5,10 +5,12 @@ CREATE TABLE IF NOT EXISTS users (
                                      password VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS courses (
-                                       id SERIAL PRIMARY KEY,
-                                       title VARCHAR(255) NOT NULL,
-                                       description TEXT
+CREATE TABLE IF NOT EXISTS meditation_videos (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    video_content BYTEA NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS music (
@@ -21,28 +23,28 @@ CREATE TABLE IF NOT EXISTS music (
 CREATE TABLE IF NOT EXISTS course_comments (
                                                id SERIAL PRIMARY KEY,
                                                user_id INT NOT NULL,
-                                               course_id INT NOT NULL,
+                                               video_id INT NOT NULL,
                                                text TEXT,
                                                timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
                                                CONSTRAINT fk_user_course_comments FOREIGN KEY (user_id) REFERENCES users(id),
-                                               CONSTRAINT fk_course_comments FOREIGN KEY (course_id) REFERENCES courses(id)
+                                               CONSTRAINT fk_video_comments FOREIGN KEY (video_id) REFERENCES meditation_videos(id)
 );
 
 CREATE TABLE IF NOT EXISTS course_ratings (
                                               id SERIAL PRIMARY KEY,
-                                              course_id INT NOT NULL,
+                                              video_id INT NOT NULL,
                                               user_id INT NOT NULL,
                                               value FLOAT,
                                               CONSTRAINT fk_user_course_rating FOREIGN KEY (user_id) REFERENCES users(id),
-                                              CONSTRAINT fk_course_course_rating FOREIGN KEY (course_id) REFERENCES courses(id)
+                                              CONSTRAINT fk_video_course_rating FOREIGN KEY (video_id) REFERENCES meditation_videos(id)
 );
 
 CREATE TABLE IF NOT EXISTS course_favorites (
                                                 id SERIAL PRIMARY KEY,
                                                 user_id INT NOT NULL,
-                                                course_id INT NOT NULL,
+                                                video_id INT NOT NULL,
                                                 CONSTRAINT fk_user_course_favorite FOREIGN KEY (user_id) REFERENCES users(id),
-                                                CONSTRAINT fk_course_favorite FOREIGN KEY (course_id) REFERENCES courses(id)
+                                                CONSTRAINT fk_video_favorite FOREIGN KEY (video_id) REFERENCES meditation_videos(id)
 );
 
 CREATE TABLE IF NOT EXISTS emotions (

@@ -49,29 +49,30 @@ func main() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 	// Initialize repositories
-	courseRepo := repositories.NewCourseRepository(db)
+	videoRepo := repositories.NewVideoRepository(db)
 	musicRepo := repositories.NewMusicrepository(db)
 	ratingRepo := repositories.NewRatingrepository(db)
 	commentRepo := repositories.NewCommentrepository(db)
 	favoriteRepo := repositories.NewFavoriterepository(db)
 
-	courseServ := services.NewCourseService(courseRepo)
+	videoServ := services.NewVideoService(videoRepo)
 	musicServ := services.NewMusicService(musicRepo)
 	ratingServ := services.NewRatingsService(ratingRepo)
 	commentServ := services.NewCommentService(commentRepo)
 	favoriteServ := services.NewFavoriteService(favoriteRepo)
 
 	// Initialize handlers
-	courseHandler := handlers.NewCourseHandler(courseServ)
+	videoHandler := handlers.NewVideoHandler(videoServ)
 	musicHandler := handlers.NewMusicHandler(musicServ)
 	ratingHandler := handlers.NewRatingHandler(ratingServ)
 	commentHandler := handlers.NewCommentHandler(commentServ)
 	favoriteHandler := handlers.NewFavoriteHandler(favoriteServ)
 
 	// Register HTTP handlers
-	http.Handle("/courses/all", corsMiddleware(http.HandlerFunc(courseHandler.GetAllCoursesHandler)))
-	http.Handle("/course/search", corsMiddleware(http.HandlerFunc(courseHandler.GetCourseByNameHandler)))
-	http.Handle("/course/add", corsMiddleware(http.HandlerFunc(courseHandler.AddCourseHandler)))
+	http.Handle("/video/all", corsMiddleware(http.HandlerFunc(videoHandler.GetAllVideosHandler)))
+	http.Handle("/video/search", corsMiddleware(http.HandlerFunc(videoHandler.GetVideoByTitleHandler)))
+	http.Handle("/video/add", corsMiddleware(http.HandlerFunc(videoHandler.AddVideoHandler)))
+	http.Handle("/video/delete", corsMiddleware(http.HandlerFunc(videoHandler.DeleteVideoHandler)))
 	http.Handle("/music/all", corsMiddleware(http.HandlerFunc(musicHandler.GetAllMusicHandler)))
 	http.Handle("/music/add", corsMiddleware(http.HandlerFunc(musicHandler.AddMusicHandler)))
 	http.Handle("/ratings/add", corsMiddleware(http.HandlerFunc(ratingHandler.AddRatingHandler)))

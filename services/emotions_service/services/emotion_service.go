@@ -28,7 +28,11 @@ func (s *EmotionService) CreateEmotion(topic, body string) error {
 
 // UpdateEmotion обновляет существующую запись эмоции
 func (s *EmotionService) UpdateEmotion(emotionID int, updatedEmotion *models.Emotion) error {
-	return s.EmotionRepository.UpdateEmotion(emotionID, updatedEmotion)
+	err := s.EmotionRepository.UpdateEmotion(emotionID, updatedEmotion)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // DeleteEmotion удаляет запись эмоции

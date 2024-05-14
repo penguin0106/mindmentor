@@ -4,20 +4,25 @@ import "net/http"
 
 const meditationServiceURL = "http://meditation_service:8083"
 
-// MedCoursesAllHandler КУРСЫ
-func MedCoursesAllHandler(w http.ResponseWriter, r *http.Request) {
+// MedVideoAllHandler КУРСЫ
+func MedVideoAllHandler(w http.ResponseWriter, r *http.Request) {
 	// Proxy the request to the meditation service
-	proxyRequest(w, meditationServiceURL+"/courses/all", r.Method, r.Body)
+	proxyRequest(w, meditationServiceURL+"/video/all", r.Method, r.Body)
 }
 
-func MedCoursesSearchHandler(w http.ResponseWriter, r *http.Request) {
+func MedVideoSearchHandler(w http.ResponseWriter, r *http.Request) {
 	// Proxy the request to the meditation service
-	proxyRequest(w, meditationServiceURL+"/course/search", r.Method, r.Body)
+	proxyRequest(w, meditationServiceURL+"/video/search", r.Method, r.Body)
 }
 
-func MedCoursesAddHandler(w http.ResponseWriter, r *http.Request) {
+func MedVideoAddHandler(w http.ResponseWriter, r *http.Request) {
 	// Proxy the request to the meditation service
-	proxyRequest(w, meditationServiceURL+"/courses/add", r.Method, r.Body)
+	proxyRequest(w, meditationServiceURL+"/video/add", r.Method, r.Body)
+}
+
+func MedVideoDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	// Proxy the request to the meditation service
+	proxyRequest(w, meditationServiceURL+"/video/delete", r.Method, r.Body)
 }
 
 // MedMusicAllHandler МУЗЫКА

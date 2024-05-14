@@ -39,9 +39,10 @@ func main() {
 	http.HandleFunc("/emotions/user", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.EmotionsUserHandler)))))
 
 	//Meditations_service
-	http.HandleFunc("/meditations/courses/all", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedCoursesAllHandler)))))
-	http.HandleFunc("/meditations/course/search", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedCoursesSearchHandler)))))
-	http.HandleFunc("/meditations/courses/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedCoursesAddHandler)))))
+	http.HandleFunc("/meditations/video/all", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedVideoAllHandler)))))
+	http.HandleFunc("/meditations/video/search", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedVideoSearchHandler)))))
+	http.HandleFunc("/meditations/video/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedVideoAddHandler)))))
+	http.HandleFunc("/meditations/video/delete", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedVideoDeleteHandler)))))
 
 	http.HandleFunc("/meditations/music/all", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedMusicAllHandler)))))
 	http.HandleFunc("/meditations/music/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedMusicAddHandler)))))

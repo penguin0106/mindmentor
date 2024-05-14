@@ -2,13 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
-	"meditation_service/models"
 	"meditation_service/services"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 // CommentHandler handles HTTP requests related to comments
@@ -22,31 +19,32 @@ func NewCommentHandler(comServ *services.CommentService) *CommentHandler {
 
 // AddCommentHandler adds a new comment for a course
 func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Request) {
-	var comment models.Comment
-	err := json.NewDecoder(r.Body).Decode(&comment)
+	//Извлекаем данные из запроса
+	userID, err := strconv.Atoi(r.FormValue("user_id"))
 	if err != nil {
-		log.Println("Error decoding comment JSON:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		http.Error(w, "Некорректный идентификатор пользователя", http.StatusBadRequest)
 		return
 	}
 
-	//Проверка наличия необходимых полей в комментарии
-	if comment.UserID == 0 || comment.Text == "" {
-		http.Error(w, "Недостаточно данных для добавления комментария", http.StatusBadRequest)
+	itemId, err := strconv.Atoi(r.FormValue("item_id"))
+	if err != nil {
+		http.Error(w, "Некорректный идентификатор элемента", http.StatusBadRequest)
+		return
 	}
 
-	//Установка временной метки комментария
-	comment.Timestamp = time.Now().Unix()
+	text := r.FormValue("text")
+	if text == "" {
+		http.Error(w, "Текст комментария не может быть пустым", http.StatusBadRequest)
+		return
+	}
 
-	err = h.CommentService.AddCourseComment(&comment)
+	err = h.CommentService.AddCourseComment(userID, itemId, text)
 	if err != nil {
-		log.Println("Ошибка добавления комментария:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при добавлении комментария", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Комментарий успешно добавлен")
 }
 
 // GetCommentsByCourseIDHandler returns all comments for a given course ID
