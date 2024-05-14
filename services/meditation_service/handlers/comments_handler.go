@@ -38,7 +38,7 @@ func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = h.CommentService.AddCourseComment(userID, itemId, text)
+	err = h.CommentService.AddVideoComment(userID, itemId, text)
 	if err != nil {
 		http.Error(w, "Ошибка при добавлении комментария", http.StatusInternalServerError)
 		return
@@ -47,19 +47,19 @@ func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusCreated)
 }
 
-// GetCommentsByCourseIDHandler returns all comments for a given course ID
-func (h *CommentHandler) GetCommentsByCourseIDHandler(w http.ResponseWriter, r *http.Request) {
-	courseIDStr := r.URL.Query().Get("course_id")
-	courseID, err := strconv.Atoi(courseIDStr)
+// GetCommentsByVideoIDHandler returns all comments for a given course ID
+func (h *CommentHandler) GetCommentsByVideoIDHandler(w http.ResponseWriter, r *http.Request) {
+	videoIDStr := r.URL.Query().Get("item_id")
+	videoID, err := strconv.Atoi(videoIDStr)
 	if err != nil {
-		log.Println("Error parsing course ID:", err)
+		log.Println("Error parsing video ID:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	comments, err := h.CommentService.GetCourseComments(courseID)
+	comments, err := h.CommentService.GetVideoComments(videoID)
 	if err != nil {
-		log.Println("Error getting comments by course ID:", err)
+		log.Println("Error getting comments by video ID:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

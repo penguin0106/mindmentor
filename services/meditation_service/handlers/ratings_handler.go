@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-	"meditation_service/models"
 	"meditation_service/services"
 	"net/http"
 	"strconv"
@@ -22,18 +21,27 @@ func NewRatingHandler(ratService *services.RatingService) *RatingHandler {
 
 // AddRatingHandler adds a new rating for a course
 func (h *RatingHandler) AddRatingHandler(w http.ResponseWriter, r *http.Request) {
-	var rating models.Rating
-	err := json.NewDecoder(r.Body).Decode(&rating)
+	userID, err := strconv.Atoi(r.FormValue("user_id"))
 	if err != nil {
-		log.Println("Error decoding rating JSON:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		http.Error(w, "Некорректный идентификатор пользователя", http.StatusBadRequest)
 		return
 	}
 
-	err = h.RatingService.AddCourseRating(&rating)
+	videoID, err := strconv.Atoi(r.FormValue("video_id"))
 	if err != nil {
-		log.Println("Error adding rating:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, "Некорректный идентификатор видеофайла", http.StatusBadRequest)
+		return
+	}
+
+	value, err := strconv.Atoi(r.FormValue("value"))
+	if err != nil {
+		http.Error(w, "Некорректное значение оценки", http.StatusBadRequest)
+		return
+	}
+
+	err = h.RatingService.AddVideoRating(userID, videoID, float64(value))
+	if err != nil {
+		http.Error(w, "Ошибка при добавлении оценки", http.StatusInternalServerError)
 		return
 	}
 
@@ -41,21 +49,33 @@ func (h *RatingHandler) AddRatingHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *RatingHandler) GetAverageRatingHandler(w http.ResponseWriter, r *http.Request) {
-	courseID, err := strconv.Atoi(r.URL.Query().Get("course_id"))
+	videoIDStr := r.URL.Query().Get("video_id")
+	videoID, err := strconv.Atoi(videoIDStr)
 	if err != nil {
-		http.Error(w, "Некорректный идентификатор тренировки", http.StatusBadRequest)
-		return
-	}
-	averageRating, err := h.RatingService.GetAverageCourseRating(courseID)
-	if err != nil {
-		http.Error(w, "Ошибка при получении рейтинга тренировки", http.StatusInternalServerError)
+		log.Println("Error parsing video ID:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	response := map[string]float64{"average_rating": averageRating}
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(response)
+	averageRating, err := h.RatingService.GetVideoAverageRating(videoID)
 	if err != nil {
-		log.Println("Ошибка при кодировке ответа:", err)
+		log.Println("Error getting average rating for video:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
+
+	response := struct {
+		AverageRating float64 `json:"average_rating"`
+	}{AverageRating: averageRating}
+
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		log.Println("Error marshalling average rating to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
 }

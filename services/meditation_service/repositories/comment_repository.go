@@ -17,7 +17,7 @@ func NewCommentrepository(db *sql.DB) *CommentRepository {
 // AddComment добавляет новый комментарий курса медитации
 func (r *CommentRepository) AddComment(comment *models.Comment) error {
 	// Реализация добавления комментария в базу данных или другой источник данных
-	query := "INSERT INTO course_comments (user_id, item_id, text, timestamp) VALUES ($1, $2, $3, $4)"
+	query := "INSERT INTO video_comments (user_id, item_id, text, timestamp) VALUES ($1, $2, $3, $4)"
 	_, err := r.DB.Exec(query, comment.UserID, comment.ItemID, comment.Text, comment.Timestamp)
 	if err != nil {
 		return err
@@ -25,11 +25,11 @@ func (r *CommentRepository) AddComment(comment *models.Comment) error {
 	return nil
 }
 
-// GetCommentsByCourseID возвращает все комментарии для указанного курса медитации
-func (r *CommentRepository) GetCommentsByCourseID(courseID int) ([]*models.Comment, error) {
+// GetCommentsByVideoID возвращает все комментарии для указанного курса медитации
+func (r *CommentRepository) GetCommentsByVideoID(videoID int) ([]*models.Comment, error) {
 	// Реализация запроса к базе данных или другому источнику данных для получения всех комментариев курса
-	query := "SELECT user_id, item_id, text, timestamp FROM course_comments WHERE item_id = $1"
-	rows, err := r.DB.Query(query, courseID)
+	query := "SELECT user_id, item_id, text, timestamp FROM video_comments WHERE item_id = $1"
+	rows, err := r.DB.Query(query, videoID)
 	if err != nil {
 		return nil, err
 	}

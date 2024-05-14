@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"meditation_service/models"
 	"meditation_service/repositories"
 )
@@ -13,12 +14,29 @@ func NewRatingsService(ratRepo *repositories.RatingRepository) *RatingService {
 	return &RatingService{RatingRepository: ratRepo}
 }
 
-// AddCourseRating добавляет новую оценку курса медитации
-func (s *RatingService) AddCourseRating(rating *models.Rating) error {
-	return s.RatingRepository.AddRating(rating)
+// AddVideoRating добавляет новую оценку курса медитации
+func (s *RatingService) AddVideoRating(userID, videoID int, value float64) error {
+	if value < 0 || value > 5 {
+		return errors.New("недопустимое значение оценки")
+	}
+	rating := &models.Rating{
+		UserID: userID,
+		ItemID: videoID,
+		Value:  value,
+	}
+
+	err := s.RatingRepository.AddRating(rating)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-// GetAverageCourseRating возвращает среднюю оценку курса медитации
-func (s *RatingService) GetAverageCourseRating(courseID int) (float64, error) {
-	return s.RatingRepository.GetAverageRating(courseID)
+// GetVideoAverageRating возвращает среднюю оценку курса медитации
+func (s *RatingService) GetVideoAverageRating(videoID int) (float64, error) {
+	averageRating, err := s.RatingRepository.GetAverageRating(videoID)
+	if err != nil {
+		return 0, err
+	}
+	return averageRating, nil
 }

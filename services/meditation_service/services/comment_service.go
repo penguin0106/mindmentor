@@ -14,8 +14,8 @@ func NewCommentService(commentRepo *repositories.CommentRepository) *CommentServ
 	return &CommentService{CommentRepository: commentRepo}
 }
 
-// AddCourseComment добавляет новый комментарий курса медитации
-func (s *CommentService) AddCourseComment(userID, itemID int, text string) error {
+// AddVideoComment добавляет новый комментарий курса медитации
+func (s *CommentService) AddVideoComment(userID, itemID int, text string) error {
 	comment := &models.Comment{
 		UserID:    userID,
 		ItemID:    itemID,
@@ -30,9 +30,9 @@ func (s *CommentService) AddCourseComment(userID, itemID int, text string) error
 	return nil
 }
 
-// GetCourseComments возвращает все комментарии для указанного курса медитации
-func (s *CommentService) GetCourseComments(courseID int) ([]*models.Comment, error) {
-	comments, err := s.CommentRepository.GetCommentsByCourseID(courseID)
+// GetVideoComments возвращает все комментарии для указанного курса медитации
+func (s *CommentService) GetVideoComments(videoID int) ([]*models.Comment, error) {
+	comments, err := s.CommentRepository.GetCommentsByVideoID(videoID)
 	if err != nil {
 		return nil, err
 	}

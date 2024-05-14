@@ -20,26 +20,26 @@ CREATE TABLE IF NOT EXISTS music (
                                      url VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS course_comments (
+CREATE TABLE IF NOT EXISTS video_comments (
                                                id SERIAL PRIMARY KEY,
                                                user_id INT NOT NULL,
-                                               video_id INT NOT NULL,
+                                               item_id INT NOT NULL,
                                                text TEXT,
                                                timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-                                               CONSTRAINT fk_user_course_comments FOREIGN KEY (user_id) REFERENCES users(id),
-                                               CONSTRAINT fk_video_comments FOREIGN KEY (video_id) REFERENCES meditation_videos(id)
+                                               CONSTRAINT fk_user_video_comments FOREIGN KEY (user_id) REFERENCES users(id),
+                                               CONSTRAINT fk_video_comments FOREIGN KEY (item_id) REFERENCES meditation_videos(id)
 );
 
-CREATE TABLE IF NOT EXISTS course_ratings (
+CREATE TABLE IF NOT EXISTS video_ratings (
                                               id SERIAL PRIMARY KEY,
                                               video_id INT NOT NULL,
                                               user_id INT NOT NULL,
                                               value FLOAT,
-                                              CONSTRAINT fk_user_course_rating FOREIGN KEY (user_id) REFERENCES users(id),
-                                              CONSTRAINT fk_video_course_rating FOREIGN KEY (video_id) REFERENCES meditation_videos(id)
+                                              CONSTRAINT fk_user_video_rating FOREIGN KEY (user_id) REFERENCES users(id),
+                                              CONSTRAINT fk_video_video_rating FOREIGN KEY (video_id) REFERENCES meditation_videos(id)
 );
 
-CREATE TABLE IF NOT EXISTS course_favorites (
+CREATE TABLE IF NOT EXISTS video_favorites (
                                                 id SERIAL PRIMARY KEY,
                                                 user_id INT NOT NULL,
                                                 video_id INT NOT NULL,
