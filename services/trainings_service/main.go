@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
@@ -10,10 +11,26 @@ import (
 	"trainings_service/services"
 )
 
+const (
+	defaultHost     = "database_postgres"
+	defaultPort     = "5432"
+	defaultUser     = "postgres"
+	defaultPassword = "mindmentor"
+	defaultDBName   = "mindmentor"
+)
+
+// connectToDatabase подключается к базе данных и возвращает объект подключения
+func connectToDatabase() (*sql.DB, error) {
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", defaultHost, defaultPort, defaultUser, defaultPassword, defaultDBName)
+	db, err := sql.Open("postgres", connStr)
+
+	return db, err
+}
+
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, UPDATE, DELETE, PUT, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		if r.Method == "OPTIONS" {
@@ -46,7 +63,7 @@ func main() {
 	favoriteHandler := handlers.NewFavoriteHandler(favoriteServ)
 
 	// Регистрация HTTP обработчиков
-	http.Handle("/trainings", corsMiddleware(http.HandlerFunc(trainingHandler.GetAllTrainingsHandler)))
+	http.Handle("/trainings/get", corsMiddleware(http.HandlerFunc(trainingHandler.GetAllTrainingsHandler)))
 	http.Handle("/trainings/search", corsMiddleware(http.HandlerFunc(trainingHandler.GetTrainingByNameHandler)))
 
 	// Register favorite handler functions with CORS middleware
@@ -54,17 +71,12 @@ func main() {
 	http.Handle("/favorites/remove", corsMiddleware(http.HandlerFunc(favoriteHandler.RemoveFromFavoritesHandler)))
 
 	// Register comment handler functions with CORS middleware
-	http.Handle("/comments", corsMiddleware(http.HandlerFunc(commentHandler.AddCommentHandler)))
-	http.Handle("/comments/trainings", corsMiddleware(http.HandlerFunc(commentHandler.GetCommentsByTrainingIDHandler)))
+	http.Handle("/comments/add", corsMiddleware(http.HandlerFunc(commentHandler.AddCommentHandler)))
+	http.Handle("/comments/get", corsMiddleware(http.HandlerFunc(commentHandler.GetCommentsByTrainingIDHandler)))
+
 	http.Handle("/rating/add", corsMiddleware(http.HandlerFunc(commentHandler.AddRatingHandler)))
 	http.Handle("/rating/get", corsMiddleware(http.HandlerFunc(commentHandler.GetRatingHandler)))
 
 	// Запуск сервера
 	http.ListenAndServe(":8085", nil)
-}
-
-// connectToDatabase подключается к базе данных и возвращает объект подключения
-func connectToDatabase() (*sql.DB, error) {
-	db, err := sql.Open("postgres", "postgres://mindmentor:postgres@localhost:5432/mindmentor?sslmode=disable")
-	return db, err
 }

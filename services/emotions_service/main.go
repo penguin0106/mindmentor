@@ -22,7 +22,7 @@ const (
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS,DELETE, PUT")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, UPDATE, DELETE, PUT, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		if r.Method == "OPTIONS" {
@@ -50,10 +50,10 @@ func main() {
 
 	// Регистрация HTTP обработчиков
 
-	http.Handle("/emotions", corsMiddleware(http.HandlerFunc(emotionHandler.CreateEmotionHandler)))
-	http.Handle("/emotions/update", corsMiddleware(http.HandlerFunc(emotionHandler.UpdateEmotionHandler)))
-	http.Handle("/emotions/delete", corsMiddleware(http.HandlerFunc(emotionHandler.DeleteEmotionHandler)))
-	http.Handle("/emotions/user", corsMiddleware(http.HandlerFunc(emotionHandler.GetEmotionsByUserHandler)))
+	http.Handle("/create", corsMiddleware(http.HandlerFunc(emotionHandler.CreateEmotionHandler)))
+	http.Handle("/update", corsMiddleware(http.HandlerFunc(emotionHandler.UpdateEmotionHandler)))
+	http.Handle("/delete", corsMiddleware(http.HandlerFunc(emotionHandler.DeleteEmotionHandler)))
+	http.Handle("/user", corsMiddleware(http.HandlerFunc(emotionHandler.GetEmotionsByUserHandler)))
 
 	// Запуск сервера
 	http.ListenAndServe(":8082", nil)

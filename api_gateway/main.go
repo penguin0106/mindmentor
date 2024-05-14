@@ -1,89 +1,89 @@
 package main
 
 import (
+	"api_gateway/handlers"
 	"api_gateway/middleware"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 )
 
-const (
-	authServiceURL       = "http://localhost:8081"
-	emotionsServiceURL   = "http://localhost:8082"
-	meditationServiceURL = "http://localhost:8083"
-	socialServiceURL     = "http://localhost:8084"
-	trainingsServiceURL  = "http://localhost:8085"
-	profileServiceURL    = "http://localhost:8086"
-)
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, UPDATE, DELETE, PUT, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			http.Error(w, "", http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
 
 func main() {
 	// Set up middleware
 	authMiddleware := middleware.AuthMiddleware
 	loggingMiddleware := middleware.LoggingMiddleware
 
-	// Apply middleware to handlers
-	http.HandleFunc("/auth", authHandler)
-	http.HandleFunc("/emotions", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(emotionsHandler))))
-	http.HandleFunc("/meditation", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(meditationHandler))))
-	http.HandleFunc("/profile", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(profileHandler))))
-	http.HandleFunc("/social", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(socialHandler))))
-	http.HandleFunc("/trainings", loggingMiddleware(authMiddleware(middleware.WrapHandlerFunc(trainingsHandler))))
+	// Auth_service
+	http.HandleFunc("/auth/register", loggingMiddleware(corsMiddleware(http.HandlerFunc(handlers.AuthRegisterHandler))))
+	http.HandleFunc("/auth/login", loggingMiddleware(corsMiddleware(http.HandlerFunc(handlers.AuthLoginHandler))))
+
+	//Emotions_service
+	http.HandleFunc("/emotions/create", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.EmotionsCreateHandler)))))
+	http.HandleFunc("/emotions/update", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.EmotionsUpdateHandler)))))
+	http.HandleFunc("/emotions/delete", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.EmotionsDeleteHandler)))))
+	http.HandleFunc("/emotions/user", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.EmotionsUserHandler)))))
+
+	//Meditations_service
+	http.HandleFunc("/meditations/courses/all", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedCoursesAllHandler)))))
+	http.HandleFunc("/meditations/course/search", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedCoursesSearchHandler)))))
+	http.HandleFunc("/meditations/courses/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedCoursesAddHandler)))))
+
+	http.HandleFunc("/meditations/music/all", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedMusicAllHandler)))))
+	http.HandleFunc("/meditations/music/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedMusicAddHandler)))))
+
+	http.HandleFunc("/meditations/ratings/get", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedRatingsGetHandler)))))
+	http.HandleFunc("/meditations/ratings/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedRatingsAddHandler)))))
+
+	http.HandleFunc("/meditations/comments/get", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedCommentsGetHandler)))))
+	http.HandleFunc("/meditations/comments/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedCommentsAddHandler)))))
+
+	http.HandleFunc("/meditations/favorites/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedFavouritesAddHandler)))))
+	http.HandleFunc("/meditations/favorites/remove", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.MedFavouritesRemoveHandler)))))
+
+	//Profile_service
+	http.HandleFunc("/profile/user/get", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileUserGetHandler)))))
+	http.HandleFunc("/profile/user/update", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileUserUpdateHandler)))))
+	http.HandleFunc("/profile/favorites/course", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileFavouritesCoursesHandler)))))
+	http.HandleFunc("/profile/favorites/training", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileFavouritesTrainingsHandler)))))
+
+	//Social_service
+	http.HandleFunc("/social/discussions/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.SocialDiscussionAddHandler)))))
+	http.HandleFunc("/social/discussions/find", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.SocialDiscussionFindHandler)))))
+	http.HandleFunc("/social/discussions/join", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.SocialDiscussionJoinHandler)))))
+	http.HandleFunc("/social/discussions/leave", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.SocialDiscussionLeaveHandler)))))
+
+	http.HandleFunc("/social/messages/send", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.SocialMessageSendHandler)))))
+	http.HandleFunc("/social/messages/edit", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.SocialMessageEditHandler)))))
+	http.HandleFunc("/social/messages/delete", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.SocialMessageDeleteHandler)))))
+
+	//Trainings_service
+	http.HandleFunc("/trainings/get", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.TrainingsGetHandler)))))
+	http.HandleFunc("/trainings/search", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.TrainingsSearchHandler)))))
+
+	http.HandleFunc("/trainings/favorites/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.TrainingsFavouritesAddHandler)))))
+	http.HandleFunc("/trainings/favorites/remove", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.TrainingsFavouritesRemoveHandler)))))
+
+	http.HandleFunc("/trainings/comments/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.TrainingsCommentsAddHandler)))))
+	http.HandleFunc("/trainings/comments/get", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.TrainingsCommentsGetHandler)))))
+
+	http.HandleFunc("/trainings/rating/add", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.TrainingsRatingAddHandler)))))
+	http.HandleFunc("/trainings/rating/get", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.TrainingsRatingGetHandler)))))
 
 	fmt.Println("API Gateway is running on port 8090...")
 	log.Fatal(http.ListenAndServe(":8090", nil))
-}
-
-func authHandler(w http.ResponseWriter, r *http.Request) {
-	// Proxy the request to the auth service
-	proxyRequest(w, authServiceURL+r.URL.Path, r.Method, r.Body)
-}
-
-func emotionsHandler(w http.ResponseWriter, r *http.Request) {
-	// Proxy the request to the emotions service
-	proxyRequest(w, emotionsServiceURL+r.URL.Path, r.Method, r.Body)
-}
-
-func meditationHandler(w http.ResponseWriter, r *http.Request) {
-	// Proxy the request to the meditation service
-	proxyRequest(w, meditationServiceURL+r.URL.Path, r.Method, r.Body)
-}
-
-func profileHandler(w http.ResponseWriter, r *http.Request) {
-	// Proxy the request to the profile service
-	proxyRequest(w, profileServiceURL+r.URL.Path, r.Method, r.Body)
-}
-
-func socialHandler(w http.ResponseWriter, r *http.Request) {
-	// Proxy the request to the social service
-	proxyRequest(w, socialServiceURL+r.URL.Path, r.Method, r.Body)
-}
-
-func trainingsHandler(w http.ResponseWriter, r *http.Request) {
-	// Proxy the request to the trainings service
-	proxyRequest(w, trainingsServiceURL+r.URL.Path, r.Method, r.Body)
-}
-
-func proxyRequest(w http.ResponseWriter, url string, method string, body io.Reader) {
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, body)
-	if err != nil {
-		http.Error(w, "Failed to create request", http.StatusInternalServerError)
-		return
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		http.Error(w, "Failed to proxy request", http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-
-	// Копирование заголовков ответа
-	for k, v := range resp.Header {
-		w.Header().Set(k, v[0])
-	}
-
-	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
 }

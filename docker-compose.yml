@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 volumes:
   postgres_data:
@@ -23,6 +23,7 @@ services:
     build:
       context: services/auth_service
       dockerfile: Dockerfile_Auth
+    container_name: auth_service
     ports:
       - "8081:8081"
     depends_on:
@@ -34,6 +35,7 @@ services:
     build:
       context: services/emotions_service
       dockerfile: Dockerfile_Emotions
+    container_name: emotions_service
     ports:
       - "8082:8082"
     depends_on:
@@ -45,6 +47,7 @@ services:
     build:
       context: services/meditation_service
       dockerfile: Dockerfile_Meditation
+    container_name: meditation_service
     ports:
       - "8083:8083"
     depends_on:
@@ -56,6 +59,7 @@ services:
     build:
       context: services/profile_service
       dockerfile: Dockerfile_Profile
+    container_name: profile_service
     ports:
       - "8086:8086"
     depends_on:
@@ -67,6 +71,7 @@ services:
     build:
       context: services/social_service
       dockerfile: Dockerfile_Social
+    container_name: social_service
     ports:
       - "8084:8084"
     depends_on:
@@ -78,6 +83,7 @@ services:
     build:
       context: services/trainings_service
       dockerfile: Dockerfile_Trainings
+    container_name: trainings_service
     ports:
       - "8085:8085"
     depends_on:
@@ -89,8 +95,11 @@ services:
     build:
       context: api_gateway
       dockerfile: Dockerfile
+    container_name: api_gateway
     ports:
       - "8090:8090"
+    networks:
+      - my_network
     depends_on:
       - auth_service
       - emotions_service
@@ -99,15 +108,14 @@ services:
       - social_service
       - trainings_service
       - database_postgres
-    networks:
-      - my_network
 
-  frontend:
-    build:
-      context: front
-      dockerfile: Dockerfile_front
-    ports:
-      - "3000:3000"
+
+#  frontend:
+#    build:
+#      context: front
+#      dockerfile: Dockerfile_front
+#    ports:
+#      - "3000:3000"
 
 
 networks:

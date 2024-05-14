@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
@@ -10,10 +11,26 @@ import (
 	"social_service/services"
 )
 
+const (
+	defaultHost     = "database_postgres"
+	defaultPort     = "5432"
+	defaultUser     = "postgres"
+	defaultPassword = "mindmentor"
+	defaultDBName   = "mindmentor"
+)
+
+// connectToDatabase подключается к базе данных и возвращает объект подключения
+func connectToDatabase() (*sql.DB, error) {
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", defaultHost, defaultPort, defaultUser, defaultPassword, defaultDBName)
+	db, err := sql.Open("postgres", connStr)
+
+	return db, err
+}
+
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, UPDATE, DELETE, PUT, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		if r.Method == "OPTIONS" {
@@ -57,10 +74,4 @@ func main() {
 
 	// Запуск сервера
 	http.ListenAndServe(":8084", nil)
-}
-
-// connectToDatabase подключается к базе данных и возвращает объект подключения
-func connectToDatabase() (*sql.DB, error) {
-	db, err := sql.Open("postgres", "postgres://mindmentor:postgres@localhost:5432/mindmentor?sslmode=disable")
-	return db, err
 }
