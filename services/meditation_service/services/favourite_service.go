@@ -1,6 +1,10 @@
 package services
 
-import "meditation_service/repositories"
+import (
+	"fmt"
+	"meditation_service/models"
+	"meditation_service/repositories"
+)
 
 type FavoriteService struct {
 	FavoriteRepo *repositories.FavoriteRepository
@@ -10,12 +14,18 @@ func NewFavoriteService(favRepo *repositories.FavoriteRepository) *FavoriteServi
 	return &FavoriteService{FavoriteRepo: favRepo}
 }
 
-// AddToFavorite добавляет элемент в избранное для указанного пользователя
-func (s *FavoriteService) AddToFavorite(userID, itemID int) error {
-	return s.FavoriteRepo.AddToFavorite(userID, itemID)
+func (s *FavoriteService) AddToFavourite(fav *models.Favorite) error {
+	err := s.FavoriteRepo.AddToFavorite(fav)
+	if err != nil {
+		return fmt.Errorf("ошибка при добавлении видео в избранное: %v", err)
+	}
+	return nil
 }
 
-// RemoveFromFavorite удаляет элемент из избранного для указанного пользователя
-func (s *FavoriteService) RemoveFromFavorite(userID, itemID int) error {
-	return s.FavoriteRepo.RemoveFromFavorite(userID, itemID)
+func (s *FavoriteService) RemoveFromFavorite(fav *models.Favorite) error {
+	err := s.FavoriteRepo.RemoveFromFavorite(fav)
+	if err != nil {
+		return fmt.Errorf("ошибка при удалении видео из избранного: %v", err)
+	}
+	return nil
 }

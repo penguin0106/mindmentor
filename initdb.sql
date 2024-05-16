@@ -13,11 +13,12 @@ CREATE TABLE IF NOT EXISTS meditation_videos (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS music (
+CREATE TABLE IF NOT EXISTS meditation_music (
                                      id SERIAL PRIMARY KEY,
                                      name VARCHAR(255) NOT NULL,
                                      duration INT NOT NULL,
-                                     url VARCHAR(255) NOT NULL
+                                     music_content BYTEA NOT NULL,
+                                     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS video_comments (
@@ -42,9 +43,9 @@ CREATE TABLE IF NOT EXISTS video_ratings (
 CREATE TABLE IF NOT EXISTS video_favorites (
                                                 id SERIAL PRIMARY KEY,
                                                 user_id INT NOT NULL,
-                                                video_id INT NOT NULL,
+                                                item_id INT NOT NULL,
                                                 CONSTRAINT fk_user_course_favorite FOREIGN KEY (user_id) REFERENCES users(id),
-                                                CONSTRAINT fk_video_favorite FOREIGN KEY (video_id) REFERENCES meditation_videos(id)
+                                                CONSTRAINT fk_video_favorite FOREIGN KEY (item_id) REFERENCES meditation_videos(id)
 );
 
 CREATE TABLE IF NOT EXISTS emotions (

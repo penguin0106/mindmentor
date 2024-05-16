@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-	"meditation_service/models"
 	"meditation_service/services"
 	"net/http"
 )
@@ -17,19 +16,19 @@ func NewMusicHandler(musicServ *services.MusicService) *MusicHandler {
 	return &MusicHandler{MusicServ: musicServ}
 }
 
-// GetAllMusicHandler returns all meditation music
+// GetAllMusicHandler возвращает всю музыку для медитации
 func (h *MusicHandler) GetAllMusicHandler(w http.ResponseWriter, _ *http.Request) {
-	music, err := h.MusicServ.GetAllMusic()
+	musicList, err := h.MusicServ.GetAllMusic()
 	if err != nil {
-		log.Println("Error getting all music:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Println("Ошибка при получении всей музыки:", err)
+		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
 
-	response, err := json.Marshal(music)
+	response, err := json.Marshal(musicList)
 	if err != nil {
-		log.Println("Error marshalling music to JSON:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Println("Ошибка при преобразовании музыки в JSON:", err)
+		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
 
@@ -40,16 +39,21 @@ func (h *MusicHandler) GetAllMusicHandler(w http.ResponseWriter, _ *http.Request
 
 // AddMusicHandler добавляет новый аудиофайл для медитации
 func (h *MusicHandler) AddMusicHandler(w http.ResponseWriter, r *http.Request) {
-	var music models.Music
-	err := json.NewDecoder(r.Body).Decode(&music)
+	var musicData struct {
+		Name     string `json:"name"`
+		Duration int    `json:"duration"`
+		Music    []byte `json:"music"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&musicData)
 	if err != nil {
-		http.Error(w, "Failed to decode request body", http.StatusBadRequest)
+		http.Error(w, "Ошибка декодирования тела запроса", http.StatusBadRequest)
 		return
 	}
 
-	err = h.MusicServ.AddMusic(&music)
+	err = h.MusicServ.AddMusic(musicData.Name, musicData.Duration, musicData.Music)
 	if err != nil {
-		http.Error(w, "Failed to add music", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при добавлении музыки", http.StatusInternalServerError)
 		return
 	}
 

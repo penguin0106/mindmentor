@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	_ "github.com/lib/pq"
 	"meditation_service/models"
 )
 
@@ -10,7 +11,7 @@ type RatingRepository struct {
 	DB *sql.DB
 }
 
-func NewRatingrepository(db *sql.DB) *RatingRepository {
+func NewRatingRepository(db *sql.DB) *RatingRepository {
 	return &RatingRepository{DB: db}
 }
 

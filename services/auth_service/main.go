@@ -80,9 +80,10 @@ func main() {
 	// Инициализация обработчика аутентификации
 	authHandler := handlers.NewAuthHandler(authService, jwtService)
 
-	// Настройка HTTP обработчиков
+	// Настройка HTTP обработчиков для пользователя
 	http.Handle("/register", corsMiddleware(http.HandlerFunc(authHandler.RegisterUserHandler)))
 	http.Handle("/login", corsMiddleware(http.HandlerFunc(authHandler.AuthenticateUserHandler)))
+	// Настройка HTTP обработчиков для api-gateway
 	http.Handle("/verify-token", corsMiddleware(http.HandlerFunc(authHandler.VerifyTokenHandler)))
 
 	// Запуск сервера

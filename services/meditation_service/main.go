@@ -50,10 +50,10 @@ func main() {
 	}
 	// Initialize repositories
 	videoRepo := repositories.NewVideoRepository(db)
-	musicRepo := repositories.NewMusicrepository(db)
-	ratingRepo := repositories.NewRatingrepository(db)
+	musicRepo := repositories.NewMusicRepository(db)
+	ratingRepo := repositories.NewRatingRepository(db)
 	commentRepo := repositories.NewCommentRepository(db)
-	favoriteRepo := repositories.NewFavoriterepository(db)
+	favoriteRepo := repositories.NewFavoriteRepository(db)
 
 	videoServ := services.NewVideoService(videoRepo)
 	musicServ := services.NewMusicService(musicRepo)
@@ -73,14 +73,18 @@ func main() {
 	http.Handle("/video/search", corsMiddleware(http.HandlerFunc(videoHandler.GetVideoByTitleHandler)))
 	http.Handle("/video/add", corsMiddleware(http.HandlerFunc(videoHandler.AddVideoHandler)))
 	http.Handle("/video/delete", corsMiddleware(http.HandlerFunc(videoHandler.DeleteVideoHandler)))
+
 	http.Handle("/music/all", corsMiddleware(http.HandlerFunc(musicHandler.GetAllMusicHandler)))
 	http.Handle("/music/add", corsMiddleware(http.HandlerFunc(musicHandler.AddMusicHandler)))
+
 	http.Handle("/ratings/add", corsMiddleware(http.HandlerFunc(ratingHandler.AddRatingHandler)))
 	http.Handle("/ratings/get", corsMiddleware(http.HandlerFunc(ratingHandler.GetAverageRatingHandler)))
+
 	http.Handle("/comments/add", corsMiddleware(http.HandlerFunc(commentHandler.AddCommentHandler)))
 	http.Handle("/comments/get", corsMiddleware(http.HandlerFunc(commentHandler.GetCommentsByVideoIDHandler)))
-	http.Handle("/favorites/add", corsMiddleware(http.HandlerFunc(favoriteHandler.AddToFavouritesHandler)))
-	http.Handle("/favorites/remove", corsMiddleware(http.HandlerFunc(favoriteHandler.RemoveFromFavouritesHandler)))
+
+	http.Handle("/favorites/add", corsMiddleware(http.HandlerFunc(favoriteHandler.AddToFavouriteHandler)))
+	http.Handle("/favorites/remove", corsMiddleware(http.HandlerFunc(favoriteHandler.RemoveFromFavoriteHandler)))
 
 	// Start the server
 	http.ListenAndServe(":8083", nil)

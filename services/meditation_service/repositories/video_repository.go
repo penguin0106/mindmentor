@@ -3,6 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
+	_ "github.com/lib/pq"
 	"meditation_service/models"
 )
 
