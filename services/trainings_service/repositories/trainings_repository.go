@@ -3,6 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
+	_ "github.com/lib/pq"
 	"trainings_service/models"
 )
 
@@ -15,56 +16,67 @@ func NewTrainingRepository(db *sql.DB) *TrainingRepository {
 	return &TrainingRepository{DB: db}
 }
 
-// GetAllTrainings возвращает все тренировки
-func (r *TrainingRepository) GetAllTrainings() ([]*models.Training, error) {
-	query := "SELECT id, title, description, rating, favorite FROM trainings"
+// AddBook добавляет новую книгу
+func (r *TrainingRepository) AddBook(book *models.Book) error {
+	_, err := r.DB.Exec("INSERT INTO books (title, description, content) VALUES ($1, $2, $3)", book.Title, book.Description, book.Content)
+	return err
+}
+
+// GetBookByID возвращает книгу по ее идентификатору
+func (r *TrainingRepository) GetBookByID(bookID int) (*models.Book, error) {
+	row := r.DB.QueryRow("SELECT id, title, description, content, created_at FROM books WHERE id = $1", bookID)
+
+	var book models.Book
+	err := row.Scan(&book.ID, &book.Title, &book.Description, &book.Content, &book.CreatedAt)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &book, nil
+}
+
+// GetAllBook возвращает все книги
+func (r *TrainingRepository) GetAllBook() ([]*models.Book, error) {
+	query := "SELECT id, title, description, content, created_at FROM books"
 	rows, err := r.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var trainings []*models.Training
-
+	var books []*models.Book
 	for rows.Next() {
-		var training models.Training
-		err := rows.Scan(&training.ID, &training.Title, &training.Description, &training.Rating, &training.Favorite)
+		var book models.Book
+		err := rows.Scan(&book.ID, &book.Title, &book.Description, &book.Content, &book.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
-		trainings = append(trainings, &training)
+		books = append(books, &book)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return trainings, nil
+	return books, nil
 }
 
-// GetTrainingByName возвращает тренировку по ее названию
-func (r *TrainingRepository) GetTrainingByName(trainingName string) (*models.Training, error) {
-	query := "SELECT id, title, description, rating, favorite FROM trainings WHERE title = $1"
-	var training models.Training
-	err := r.DB.QueryRow(query, trainingName).Scan(&training.ID, &training.Title, &training.Description, &training.Rating, &training.Favorite)
+// GetBookByName возвращает книгу по ее названию
+func (r *TrainingRepository) GetBookByName(title string) (*models.Book, error) {
+	query := "SELECT id, title, description, content, created_at FROM books WHERE title = $1"
+	row := r.DB.QueryRow(query, title)
+
+	var book models.Book
+	err := row.Scan(&book.ID, &book.Title, &book.Description, &book.Content, &book.CreatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			// Возвращаем nil и ошибку, если тренировка не найдена
-			return nil, errors.New("тренировка не найдена")
+			return nil, nil
 		}
-		// Возвращаем ошибку в случае другой ошибки запроса
 		return nil, err
 	}
-	return &training, nil
-}
 
-// AddTraining добавляет новую тренировку
-func (r *TrainingRepository) AddTraining(training *models.Training) error {
-	query := "INSERT INTO trainings (title, description, rating, favorite) VALUES ($1, $2, $3, $4) RETURNING id"
-	err := r.DB.QueryRow(query, training.Title, training.Description, training.Rating, training.Favorite).Scan(&training.ID)
-	if err != nil {
-		// Возвращаем ошибку, если произошла ошибка при выполнении запроса
-		return errors.New("ошибка при добавлении тренировки")
-	}
-	return nil
+	return &book, nil
 }

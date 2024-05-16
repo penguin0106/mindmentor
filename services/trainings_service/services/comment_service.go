@@ -1,49 +1,50 @@
 package services
 
 import (
-	"errors"
 	"trainings_service/models"
 	"trainings_service/repositories"
 )
 
+// CommentService представляет сервис для работы с комментариями к книгам
 type CommentService struct {
-	ComRepo *repositories.CommentRepository
+	CommentRepo *repositories.CommentRepository
 }
 
-func NewCommentService(comRepo *repositories.CommentRepository) *CommentService {
-	return &CommentService{ComRepo: comRepo}
+// NewCommentService создает новый экземпляр сервиса для работы с комментариями
+func NewCommentService(commentRepo *repositories.CommentRepository) *CommentService {
+	return &CommentService{CommentRepo: commentRepo}
 }
 
-// AddComment добавляет новый комментарий к тренировке
-func (s *CommentService) AddComment(userID, trainingID int, text string) error {
-	err := s.ComRepo.AddComment(userID, trainingID, text)
+// AddBookComment добавляет новый комментарий к книге
+func (s *CommentService) AddBookComment(userID, bookID int, text string) error {
+	err := s.CommentRepo.AddComment(userID, bookID, text)
 	if err != nil {
-		return errors.New("ошибка при добавлении комментария")
+		return err
 	}
 	return nil
 }
 
-// GetCommentsByTrainingID возвращает все комментарии для указанной тренировки
-func (s *CommentService) GetCommentsByTrainingID(trainingID int) ([]*models.Comment, error) {
-	comments, err := s.ComRepo.GetCommentsByTrainingID(trainingID)
+// GetBookComments возвращает все комментарии для указанной книги
+func (s *CommentService) GetBookComments(bookID int) ([]*models.Comment, error) {
+	comments, err := s.CommentRepo.GetCommentsByBookID(bookID)
 	if err != nil {
 		return nil, err
 	}
 	return comments, nil
 }
 
-// AddRating добавляет оценку для указанной тренировки
-func (s *CommentService) AddRating(rating *models.Rating) error {
-	err := s.ComRepo.AddRating(rating)
+// AddBookRating добавляет оценку для указанной книги
+func (s *CommentService) AddBookRating(rating *models.Rating) error {
+	err := s.CommentRepo.AddRating(rating)
 	if err != nil {
-		return errors.New("ошибка при добавлении оценки")
+		return err
 	}
 	return nil
 }
 
-// GetRating возвращает рейтинг тренировки по ее идентификатору
-func (s *CommentService) GetRating(trainingID int) (float64, error) {
-	rating, err := s.ComRepo.GetRating(trainingID)
+// GetBookRating возвращает рейтинг книги по ее идентификатору
+func (s *CommentService) GetBookRating(bookID int) (float64, error) {
+	rating, err := s.CommentRepo.GetRating(bookID)
 	if err != nil {
 		return 0, err
 	}

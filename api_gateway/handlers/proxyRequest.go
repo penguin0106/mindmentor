@@ -20,11 +20,6 @@ func proxyRequest(w http.ResponseWriter, url string, method string, body io.Read
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "Ошибка при выполнении запроса: "+resp.Status, resp.StatusCode)
-		return
-	}
-
 	// Копирование заголовков ответа
 	for k, v := range resp.Header {
 		w.Header().Set(k, v[0])

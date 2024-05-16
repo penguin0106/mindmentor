@@ -17,7 +17,7 @@ func NewVideoHandler(videoService *services.VideoService) *VideoHandler {
 	}
 }
 
-func (h *VideoHandler) GetAllVideosHandler(w http.ResponseWriter, r *http.Request) {
+func (h *VideoHandler) GetAllVideosHandler(w http.ResponseWriter, _ *http.Request) {
 	videos, err := h.VideoService.GetAllVideos()
 	if err != nil {
 		http.Error(w, "Ошибка при получении видеофайла", http.StatusInternalServerError)

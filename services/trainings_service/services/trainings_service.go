@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"trainings_service/models"
 	"trainings_service/repositories"
 )
@@ -14,31 +13,44 @@ func NewTrainingService(trainRepo *repositories.TrainingRepository) *TrainingSer
 	return &TrainingService{TrainRepo: trainRepo}
 }
 
-// GetAllTrainings возвращает все тренировки
-func (s *TrainingService) GetAllTrainings() ([]*models.Training, error) {
-	trainings, err := s.TrainRepo.GetAllTrainings()
-	if err != nil {
-		return nil, err
+// AddBook добавляет новую книгу
+func (s *TrainingService) AddBook(title, description string, content []byte) error {
+	book := &models.Book{
+		Title:       title,
+		Description: description,
+		Content:     content,
 	}
-	return trainings, nil
-}
 
-func (s *TrainingService) GetTrainingByName(trainingName string) (*models.Training, error) {
-	training, err := s.TrainRepo.GetTrainingByName(trainingName)
+	err := s.TrainRepo.AddBook(book)
 	if err != nil {
-		return nil, err
-	}
-	if training == nil {
-		return nil, errors.New("тренировка не найдена")
-	}
-	return training, nil
-}
-
-// AddTraining добавляет новую тренировку
-func (s *TrainingService) AddTraining(training *models.Training) error {
-	err := s.TrainRepo.AddTraining(training)
-	if err != nil {
-		return errors.New("ошибка при добавлении тренировки")
+		return err
 	}
 	return nil
+}
+
+// GetBookByID возвращает книгу по ее идентификатору
+func (s *TrainingService) GetBookByID(bookID int) (*models.Book, error) {
+	book, err := s.TrainRepo.GetBookByID(bookID)
+	if err != nil {
+		return nil, err
+	}
+	return book, nil
+}
+
+// GetAllBooks возвращает все книги
+func (s *TrainingService) GetAllBooks() ([]*models.Book, error) {
+	books, err := s.TrainRepo.GetAllBook()
+	if err != nil {
+		return nil, err
+	}
+	return books, nil
+}
+
+// GetBookByName возвращает книгу по ее названию
+func (s *TrainingService) GetBookByName(title string) (*models.Book, error) {
+	book, err := s.TrainRepo.GetBookByName(title)
+	if err != nil {
+		return nil, err
+	}
+	return book, nil
 }

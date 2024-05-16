@@ -2,9 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
-	"trainings_service/models"
+	"strconv"
 	"trainings_service/services"
 )
 
@@ -17,80 +16,88 @@ func NewTrainingHandler(trainingServ *services.TrainingService) *TrainingHandler
 	return &TrainingHandler{TrainingServ: trainingServ}
 }
 
-// GetAllTrainingsHandler обрабатывает запрос на получение всех тренировок
-func (h *TrainingHandler) GetAllTrainingsHandler(w http.ResponseWriter, _ *http.Request) {
-	// Реализация получения всех тренировок из репозитория
-	trainings, err := h.TrainingServ.GetAllTrainings()
+func (h *TrainingHandler) AddBookHandler(w http.ResponseWriter, r *http.Request) {
+	var reqBody struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Content     []byte `json:"content"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		http.Error(w, "Ошибка при получении тренировок", http.StatusInternalServerError)
+		http.Error(w, "Ошибка чтения тела запроса", http.StatusBadRequest)
 		return
 	}
 
-	// Отправка тренировок в виде JSON-ответа
-	responseJSON, err := json.Marshal(trainings)
+	err = h.TrainingServ.AddBook(reqBody.Title, reqBody.Description, reqBody.Content)
 	if err != nil {
-		http.Error(w, "Ошибка при формировании JSON-ответа", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(responseJSON)
-}
-
-// AddTrainingHandler обрабатывает запрос на добавление новой тренировки
-func (h *TrainingHandler) AddTrainingHandler(w http.ResponseWriter, r *http.Request) {
-	var training models.Training
-	err := json.NewDecoder(r.Body).Decode(&training)
-	if err != nil {
-		http.Error(w, "Ошибка декодирования JSON", http.StatusBadRequest)
-		return
-	}
-
-	// Реализация добавления новой тренировки в репозиторий
-	err = h.TrainingServ.AddTraining(&training)
-	if err != nil {
-		http.Error(w, "Ошибка при добавлении тренировки", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при добавлении книги: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(training)
 }
 
-func (h *TrainingHandler) GetTrainingByNameHandler(w http.ResponseWriter, r *http.Request) {
-	// Получаем значение параметра из URL
-	trainingName := r.URL.Query().Get("name")
-	if trainingName == "" {
-		http.Error(w, "Missing training name parameter", http.StatusBadRequest)
+func (h *TrainingHandler) GetBookByIDHandler(w http.ResponseWriter, r *http.Request) {
+	bookID := r.URL.Query().Get("id")
+	if bookID == "" {
+		http.Error(w, "Не указан идентификатор книги", http.StatusBadRequest)
 		return
 	}
 
-	// Вызываем соответствующий метод сервиса для получения тренировки по имени
-	training, err := h.TrainingServ.GetTrainingByName(trainingName)
+	bookIDInt, err := strconv.Atoi(bookID)
 	if err != nil {
-		log.Println("Error getting training by name:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, "Некорректный формат идентификатора книги", http.StatusBadRequest)
 		return
 	}
 
-	// Если тренировка не найдена, возвращаем соответствующий код ответа
-	if training == nil {
-		http.Error(w, "Training not found", http.StatusNotFound)
-		return
-	}
-
-	// Преобразуем найденную тренировку в формат JSON
-	response, err := json.Marshal(training)
+	book, err := h.TrainingServ.GetBookByID(bookIDInt)
 	if err != nil {
-		log.Println("Error marshalling training to JSON:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, "Ошибка при получении книги: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Устанавливаем заголовок Content-Type и код ответа 200 (OK)
+	if book == nil {
+		http.Error(w, "Книга не найдена", http.StatusNotFound)
+		return
+	}
+
+	// Отправляем книгу в формате JSON
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	// Отправляем ответ с данными тренировки в формате JSON
-	w.Write(response)
+	json.NewEncoder(w).Encode(book)
+}
+
+func (h *TrainingHandler) GetAllBooksHandler(w http.ResponseWriter, _ *http.Request) {
+	books, err := h.TrainingServ.GetAllBooks()
+	if err != nil {
+		http.Error(w, "Ошибка при получении списка книг: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Отправляем список книг в формате JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(books)
+}
+
+func (h *TrainingHandler) GetBookByNameHandler(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Query().Get("title")
+	if title == "" {
+		http.Error(w, "Не указано название книги", http.StatusBadRequest)
+		return
+	}
+
+	book, err := h.TrainingServ.GetBookByName(title)
+	if err != nil {
+		http.Error(w, "Ошибка при получении книги: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if book == nil {
+		http.Error(w, "Книга не найдена", http.StatusNotFound)
+		return
+	}
+
+	// Отправляем книгу в формате JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(book)
 }

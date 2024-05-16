@@ -2,27 +2,25 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 	"trainings_service/models"
 	"trainings_service/services"
 )
 
-// CommentHandler представляет обработчик HTTP-запросов для работы с комментариями
+// CommentHandler представляет обработчик HTTP-запросов для работы с комментариями к книгам
 type CommentHandler struct {
 	CommentServ *services.CommentService
 }
 
+// NewCommentHandler создает новый экземпляр обработчика комментариев
 func NewCommentHandler(commentServ *services.CommentService) *CommentHandler {
 	return &CommentHandler{CommentServ: commentServ}
 }
 
-// AddCommentHandler обрабатывает запрос на добавление нового комментария к тренировке
-func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Request) {
+// AddBookCommentHandler обрабатывает запрос на добавление нового комментария к книге
+func (h *CommentHandler) AddBookCommentHandler(w http.ResponseWriter, r *http.Request) {
 	var comment models.Comment
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
@@ -31,90 +29,61 @@ func (h *CommentHandler) AddCommentHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Проверка наличия необходимых полей в комментарии
-	if comment.UserID == 0 || comment.Text == "" {
-		http.Error(w, "Недостаточно данных для добавления комментария", http.StatusBadRequest)
-		return
-	}
-
-	// Установка временной метки комментария
-	comment.Timestamp = time.Now().Unix()
-
-	// Получение идентификатора тренировки из параметров запроса
-	trainingID, err := getTrainingIDFromRequest(r)
+	// Получение идентификатора пользователя из запроса
+	userIDStr := r.URL.Query().Get("user_id")
+	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
-		http.Error(w, "Не удалось получить идентификатор тренировки", http.StatusBadRequest)
+		log.Println("Error parsing user ID", err)
+		http.Error(w, "Некорректный идентификатор пользователя", http.StatusBadRequest)
 		return
 	}
 
-	// Добавление комментария в хранилище
-	err = h.CommentServ.AddComment(trainingID, comment.UserID, comment.Text)
+	// Получение идентификатора книги из запроса
+	bookIDStr := r.URL.Query().Get("book_id")
+	bookID, err := strconv.Atoi(bookIDStr)
 	if err != nil {
-		log.Println("Ошибка добавления комментария:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Println("Error parsing book ID", err)
+		http.Error(w, "Некорректный идентификатор книги", http.StatusBadRequest)
 		return
 	}
 
-	// Отправка успешного ответа
+	// Добавление комментария к книге
+	err = h.CommentServ.AddBookComment(userID, bookID, comment.Text)
+	if err != nil {
+		log.Println("Error adding comment:", err)
+		http.Error(w, "Ошибка при добавлении комментария", http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Комментарий успешно добавлен")
 }
 
-// GetCommentsByTrainingIDHandler обрабатывает запрос на получение комментариев для указанной тренировки
-func (h *CommentHandler) GetCommentsByTrainingIDHandler(w http.ResponseWriter, r *http.Request) {
-	// Получение идентификатора тренировки из параметров запроса
-	trainingIDStr := r.URL.Query().Get("training_id")
-	trainingID, err := strconv.Atoi(trainingIDStr)
+// GetBookCommentsHandler обрабатывает запрос на получение комментариев для указанной книги
+func (h *CommentHandler) GetBookCommentsHandler(w http.ResponseWriter, r *http.Request) {
+	// Получение идентификатора книги из запроса
+	bookIDStr := r.URL.Query().Get("book_id")
+	bookID, err := strconv.Atoi(bookIDStr)
 	if err != nil {
-		log.Println("Не удалось получить идентификатор тренировки", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		log.Println("Error parsing book ID", err)
+		http.Error(w, "Некорректный идентификатор книги", http.StatusBadRequest)
 		return
 	}
 
-	// Получение комментариев для указанной тренировки
-	comments, err := h.CommentServ.GetCommentsByTrainingID(trainingID)
+	// Получение комментариев для указанной книги
+	comments, err := h.CommentServ.GetBookComments(bookID)
 	if err != nil {
-		log.Println("Ошибка при получении комментариев для тренировки", err)
-		http.Error(w, "Bad Request", http.StatusInternalServerError)
-		return
-	}
-
-	response, err := json.Marshal(comments)
-	if err != nil {
-		log.Println("Error marshalling comments to JSON:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Println("Error getting comments for book:", err)
+		http.Error(w, "Ошибка при получении комментариев", http.StatusInternalServerError)
 		return
 	}
 
 	// Отправка комментариев в виде JSON-ответа
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(response)
+	json.NewEncoder(w).Encode(comments)
 }
 
-// getTrainingIDFromRequest извлекает идентификатор тренировки из запроса
-func getTrainingIDFromRequest(r *http.Request) (int, error) {
-	// Извлекаем параметр "training_id" из строки запроса
-	trainingID := r.URL.Query().Get("training_id")
-
-	// Проверяем, что параметр не пустой
-	if trainingID == "" {
-		return 0, errors.New("идентификатор тренировки не указан")
-	}
-
-	// Преобразуем полученный идентификатор в целочисленное значение
-	id, err := strconv.Atoi(trainingID)
-	if err != nil {
-		// Если произошла ошибка преобразования, возвращаем ошибку
-		return 0, err
-	}
-
-	// Возвращаем полученный идентификатор тренировки
-	return id, nil
-}
-
-// AddRatingHandler обрабатывает запрос на добавление оценки тренировки
-func (h *CommentHandler) AddRatingHandler(w http.ResponseWriter, r *http.Request) {
+// AddBookRatingHandler обрабатывает запрос на добавление оценки для указанной книги
+func (h *CommentHandler) AddBookRatingHandler(w http.ResponseWriter, r *http.Request) {
 	var rating models.Rating
 	err := json.NewDecoder(r.Body).Decode(&rating)
 	if err != nil {
@@ -122,29 +91,42 @@ func (h *CommentHandler) AddRatingHandler(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
+
+	// Добавление оценки для указанной книги
+	err = h.CommentServ.AddBookRating(&rating)
+	if err != nil {
+		log.Println("Error adding book rating:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
-// GetRatingHandler обрабатывает запрос на получение среднего рейтинга тренировки
-func (h *CommentHandler) GetRatingHandler(w http.ResponseWriter, r *http.Request) {
-	// Получение идентификатора тренировки из запроса
-	trainingID, err := strconv.Atoi(r.URL.Query().Get("training_id"))
+// GetBookRatingHandler обрабатывает запрос на получение рейтинга книги по ее идентификатору
+func (h *CommentHandler) GetBookRatingHandler(w http.ResponseWriter, r *http.Request) {
+	// Получение идентификатора книги из запроса
+	bookIDStr := r.URL.Query().Get("book_id")
+	bookID, err := strconv.Atoi(bookIDStr)
 	if err != nil {
-		http.Error(w, "Некорректный идентификатор тренировки", http.StatusBadRequest)
+		log.Println("Error parsing book ID", err)
+		http.Error(w, "Некорректный идентификатор книги", http.StatusBadRequest)
 		return
 	}
 
-	// Получение рейтинга тренировки из репозитория
-	averageRating, err := h.CommentServ.GetRating(trainingID)
+	// Получение рейтинга книги по ее идентификатору
+	rating, err := h.CommentServ.GetBookRating(bookID)
 	if err != nil {
-		http.Error(w, "Ошибка при получении рейтинга тренировки", http.StatusInternalServerError)
+		log.Println("Error getting book rating:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	// Отправка ответа с средним рейтингом в формате JSON
-	response := map[string]float64{"average_rating": averageRating}
+	// Отправка рейтинга книги в виде JSON-ответа
+	response := map[string]float64{"rating": rating}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
-		log.Println("Ошибка при кодировании ответа:", err)
+		log.Println("Error encoding response:", err)
 	}
 }

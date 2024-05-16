@@ -56,31 +56,31 @@ CREATE TABLE IF NOT EXISTS emotions (
 
 );
 
-CREATE TABLE IF NOT EXISTS trainings (
-                                         id SERIAL PRIMARY KEY,
-                                         title VARCHAR(255) NOT NULL,
-                                         description TEXT,
-                                         rating FLOAT,
-                                         favorite BOOLEAN
+CREATE TABLE IF NOT EXISTS books (
+                                     id SERIAL PRIMARY KEY,
+                                     title VARCHAR(255) NOT NULL,
+                                     description TEXT,
+                                     content BYTEA NOT NULL,
+                                     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS trainings_comments (
-                                                  id SERIAL PRIMARY KEY,
-                                                  user_id INT NOT NULL,
-                                                  training_id INT NOT NULL,
-                                                  text TEXT,
-                                                  timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-                                                  CONSTRAINT fk_user_trainings_comments FOREIGN KEY (user_id) REFERENCES users(id),
-                                                  CONSTRAINT fk_trainings_comments FOREIGN KEY (training_id) REFERENCES trainings(id)
+CREATE TABLE IF NOT EXISTS book_comments (
+                                             id SERIAL PRIMARY KEY,
+                                             user_id INT NOT NULL,
+                                             book_id INT NOT NULL,
+                                             text TEXT NOT NULL,
+                                             timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                             FOREIGN KEY (user_id) REFERENCES users(id),
+                                             FOREIGN KEY (book_id) REFERENCES books(id)
 );
 
-CREATE TABLE IF NOT EXISTS trainings_rating (
-                                                id SERIAL PRIMARY KEY,
-                                                training_id INT NOT NULL,
-                                                user_id INT NOT NULL,
-                                                value FLOAT,
-                                                CONSTRAINT fk_user_rating FOREIGN KEY (user_id) REFERENCES users(id),
-                                                CONSTRAINT fk_training_rating FOREIGN KEY (training_id) REFERENCES trainings(id)
+CREATE TABLE IF NOT EXISTS book_rating (
+                                           id SERIAL PRIMARY KEY,
+                                           user_id INT NOT NULL,
+                                           book_id INT NOT NULL,
+                                           value FLOAT NOT NULL,
+                                           FOREIGN KEY (user_id) REFERENCES users(id),
+                                           FOREIGN KEY (book_id) REFERENCES books(id)
 );
 
 CREATE TABLE IF NOT EXISTS trainings_favorites (
