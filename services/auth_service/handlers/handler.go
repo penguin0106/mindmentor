@@ -4,6 +4,8 @@ import (
 	"auth_service/models"
 	"auth_service/services"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -74,6 +76,7 @@ func (handler *AuthHandler) AuthenticateUserHandler(w http.ResponseWriter, r *ht
 	// Отправка токена в ответе
 	response := models.Token{Token: token}
 	json.NewEncoder(w).Encode(response)
+	fmt.Fprintf(w, "Пользвователь успешно авторизирован")
 }
 
 // VerifyTokenHandler обрабатывает запрос на верификацию JWT токена
@@ -84,12 +87,14 @@ func (handler *AuthHandler) VerifyTokenHandler(w http.ResponseWriter, r *http.Re
 
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
 	if err != nil {
+		log.Println("Failed to parse request body:", err)
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
 	}
 
 	userID, username, password, err := handler.JWTService.VerifyToken(requestBody.Token)
 	if err != nil {
+		log.Println("Token verification failed:", err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
@@ -105,5 +110,8 @@ func (handler *AuthHandler) VerifyTokenHandler(w http.ResponseWriter, r *http.Re
 		Password: password,
 	}
 
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Failed to encode response:", err)
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
