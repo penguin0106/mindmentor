@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"meditation_service/services"
 	"net/http"
 	"strconv"
@@ -19,63 +19,58 @@ func NewRatingHandler(ratService *services.RatingService) *RatingHandler {
 	}
 }
 
-// AddRatingHandler adds a new rating for a course
+// AddRatingHandler обрабатывает запрос на добавление рейтинга для видео
 func (h *RatingHandler) AddRatingHandler(w http.ResponseWriter, r *http.Request) {
-	userID, err := strconv.Atoi(r.FormValue("user_id"))
+	// Извлечение параметров из запроса
+	videoID, err := strconv.Atoi(r.URL.Query().Get("video_id"))
 	if err != nil {
-		http.Error(w, "Некорректный идентификатор пользователя", http.StatusBadRequest)
+		http.Error(w, "Некорректный ID видео", http.StatusBadRequest)
 		return
 	}
 
-	videoID, err := strconv.Atoi(r.FormValue("video_id"))
+	userID, err := strconv.Atoi(r.URL.Query().Get("user_id"))
 	if err != nil {
-		http.Error(w, "Некорректный идентификатор видеофайла", http.StatusBadRequest)
+		http.Error(w, "Некорректный ID пользователя", http.StatusBadRequest)
 		return
 	}
 
-	value, err := strconv.Atoi(r.FormValue("value"))
+	rating, err := strconv.ParseFloat(r.URL.Query().Get("rating"), 64)
 	if err != nil {
-		http.Error(w, "Некорректное значение оценки", http.StatusBadRequest)
+		http.Error(w, "Некорректный формат рейтинга", http.StatusBadRequest)
 		return
 	}
 
-	err = h.RatingService.AddVideoRating(userID, videoID, float64(value))
+	// Вызов сервиса для добавления рейтинга
+	err = h.RatingService.AddRating(videoID, userID, rating)
 	if err != nil {
-		http.Error(w, "Ошибка при добавлении оценки", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Ошибка при добавлении рейтинга: %v", err), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (h *RatingHandler) GetAverageRatingHandler(w http.ResponseWriter, r *http.Request) {
-	videoIDStr := r.URL.Query().Get("video_id")
-	videoID, err := strconv.Atoi(videoIDStr)
+// GetAverageRatingForVideoHandler обрабатывает запрос на получение среднего рейтинга для видео
+func (h *RatingHandler) GetAverageRatingForVideoHandler(w http.ResponseWriter, r *http.Request) {
+	// Извлечение параметров из запроса
+	videoID, err := strconv.Atoi(r.URL.Query().Get("video_id"))
 	if err != nil {
-		log.Println("Error parsing video ID:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		http.Error(w, "Некорректный ID видео", http.StatusBadRequest)
 		return
 	}
 
-	averageRating, err := h.RatingService.GetVideoAverageRating(videoID)
+	// Вызов сервиса для получения среднего рейтинга
+	avgRating, err := h.RatingService.GetAverageRatingForVideo(videoID)
 	if err != nil {
-		log.Println("Error getting average rating for video:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Ошибка при получении среднего рейтинга: %v", err), http.StatusInternalServerError)
 		return
 	}
 
+	// Формирование ответа
 	response := struct {
 		AverageRating float64 `json:"average_rating"`
-	}{AverageRating: averageRating}
-
-	jsonResponse, err := json.Marshal(response)
-	if err != nil {
-		log.Println("Error marshalling average rating to JSON:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+	}{AverageRating: avgRating}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	json.NewEncoder(w).Encode(response)
 }

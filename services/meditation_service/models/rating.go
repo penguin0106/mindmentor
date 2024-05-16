@@ -1,9 +1,10 @@
 package models
 
-// Rating представляет оценку курса медитации
+// Rating представляет собой рейтинг видео
 type Rating struct {
-	ID     int     // Идентификатор оценки
-	ItemID int     // Идентификатор курса
-	UserID int     // Идентификатор пользователя, оставившего оценку
-	Value  float64 // Значение оценки
+	ID        int     `json:"id"`
+	VideoID   int     `json:"video_id"`
+	UserID    int     `json:"user_id"`
+	Rating    float64 `json:"rating"`
+	CreatedAt string  `json:"created_at"`
 }

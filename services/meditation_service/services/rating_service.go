@@ -1,7 +1,7 @@
 package services
 
 import (
-	"errors"
+	"fmt"
 	"meditation_service/models"
 	"meditation_service/repositories"
 )
@@ -14,29 +14,38 @@ func NewRatingsService(ratRepo *repositories.RatingRepository) *RatingService {
 	return &RatingService{RatingRepository: ratRepo}
 }
 
-// AddVideoRating добавляет новую оценку курса медитации
-func (s *RatingService) AddVideoRating(userID, videoID int, value float64) error {
-	if value < 0 || value > 5 {
-		return errors.New("недопустимое значение оценки")
-	}
-	rating := &models.Rating{
-		UserID: userID,
-		ItemID: videoID,
-		Value:  value,
+// AddRating добавляет рейтинг для указанного видео и пользователя
+func (s *RatingService) AddRating(videoID, userID int, rating float64) error {
+	// Проверяем, существует ли уже рейтинг для данного пользователя и видео
+	userRating, err := s.RatingRepository.GetUserRatingForVideo(videoID, userID)
+	if err != nil {
+		return fmt.Errorf("ошибка при проверке рейтинга пользователя: %v", err)
 	}
 
-	err := s.RatingRepository.AddRating(rating)
-	if err != nil {
-		return err
+	if userRating != 0 {
+		return fmt.Errorf("рейтинг для этого пользователя уже существует")
 	}
+
+	// Создаем новый рейтинг
+	newRating := &models.Rating{
+		VideoID: videoID,
+		UserID:  userID,
+		Rating:  rating,
+	}
+
+	err = s.RatingRepository.AddRating(newRating)
+	if err != nil {
+		return fmt.Errorf("ошибка при добавлении рейтинга: %v", err)
+	}
+
 	return nil
 }
 
-// GetVideoAverageRating возвращает среднюю оценку курса медитации
-func (s *RatingService) GetVideoAverageRating(videoID int) (float64, error) {
-	averageRating, err := s.RatingRepository.GetAverageRating(videoID)
+// GetAverageRatingForVideo возвращает средний рейтинг для указанного видео
+func (s *RatingService) GetAverageRatingForVideo(videoID int) (float64, error) {
+	avgRating, err := s.RatingRepository.GetAverageRatingForVideo(videoID)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("ошибка при получении среднего рейтинга: %v", err)
 	}
-	return averageRating, nil
+	return avgRating, nil
 }

@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS video_ratings (
                                               id SERIAL PRIMARY KEY,
                                               video_id INT NOT NULL,
                                               user_id INT NOT NULL,
-                                              value FLOAT,
+                                              rating FLOAT,
+                                              created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
                                               CONSTRAINT fk_user_video_rating FOREIGN KEY (user_id) REFERENCES users(id),
                                               CONSTRAINT fk_video_video_rating FOREIGN KEY (video_id) REFERENCES meditation_videos(id)
 );

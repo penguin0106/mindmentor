@@ -78,7 +78,7 @@ func main() {
 	http.Handle("/music/add", corsMiddleware(http.HandlerFunc(musicHandler.AddMusicHandler)))
 
 	http.Handle("/ratings/add", corsMiddleware(http.HandlerFunc(ratingHandler.AddRatingHandler)))
-	http.Handle("/ratings/get", corsMiddleware(http.HandlerFunc(ratingHandler.GetAverageRatingHandler)))
+	http.Handle("/ratings/get", corsMiddleware(http.HandlerFunc(ratingHandler.GetAverageRatingForVideoHandler)))
 
 	http.Handle("/comments/add", corsMiddleware(http.HandlerFunc(commentHandler.AddCommentHandler)))
 	http.Handle("/comments/get", corsMiddleware(http.HandlerFunc(commentHandler.GetCommentsByVideoIDHandler)))
