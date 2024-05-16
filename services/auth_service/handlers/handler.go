@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"auth_service/models"
 	"auth_service/services"
 	"encoding/json"
 	"net/http"
@@ -9,12 +10,14 @@ import (
 // AuthHandler представляет обработчики HTTP-запросов для аутентификации
 type AuthHandler struct {
 	AuthService *services.AuthService
+	JWTService  *services.JWTService
 }
 
 // NewAuthHandler создает новый экземпляр обработчика аутентификации
-func NewAuthHandler(authService *services.AuthService) *AuthHandler {
+func NewAuthHandler(authService *services.AuthService, jwtService *services.JWTService) *AuthHandler {
 	return &AuthHandler{
 		AuthService: authService,
+		JWTService:  jwtService,
 	}
 }
 
@@ -41,7 +44,7 @@ func (handler *AuthHandler) RegisterUserHandler(w http.ResponseWriter, r *http.R
 	w.WriteHeader(http.StatusCreated)
 }
 
-// AuthenticateUserHandler обрабатывает запрос на аутентификацию пользователя
+// AuthenticateUserHandler обрабатывает запрос на аутентификацию пользователя и генерацию JWT токена
 func (handler *AuthHandler) AuthenticateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var userAuthenticationRequest struct {
 		Identifier string `json:"identifier"`
@@ -54,11 +57,21 @@ func (handler *AuthHandler) AuthenticateUserHandler(w http.ResponseWriter, r *ht
 		return
 	}
 
+	// Аутентификация пользователя
 	user, err := handler.AuthService.AuthenticateUser(userAuthenticationRequest.Identifier, userAuthenticationRequest.Password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	json.NewEncoder(w).Encode(user)
+	// Генерация JWT токена
+	token, err := handler.JWTService.GenerateToken(user.ID, user.Username, user.Password)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	// Отправка токена в ответе
+	response := models.Token{Token: token}
+	json.NewEncoder(w).Encode(response)
 }
