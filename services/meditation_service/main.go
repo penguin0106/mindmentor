@@ -52,7 +52,7 @@ func main() {
 	videoRepo := repositories.NewVideoRepository(db)
 	musicRepo := repositories.NewMusicrepository(db)
 	ratingRepo := repositories.NewRatingrepository(db)
-	commentRepo := repositories.NewCommentrepository(db)
+	commentRepo := repositories.NewCommentRepository(db)
 	favoriteRepo := repositories.NewFavoriterepository(db)
 
 	videoServ := services.NewVideoService(videoRepo)

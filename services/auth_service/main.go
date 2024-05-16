@@ -83,6 +83,7 @@ func main() {
 	// Настройка HTTP обработчиков
 	http.Handle("/register", corsMiddleware(http.HandlerFunc(authHandler.RegisterUserHandler)))
 	http.Handle("/login", corsMiddleware(http.HandlerFunc(authHandler.AuthenticateUserHandler)))
+	http.Handle("/verify-token", corsMiddleware(http.HandlerFunc(authHandler.VerifyTokenHandler)))
 
 	// Запуск сервера
 	fmt.Println("Authentication service is running on port 8081...")

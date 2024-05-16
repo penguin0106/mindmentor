@@ -75,3 +75,35 @@ func (handler *AuthHandler) AuthenticateUserHandler(w http.ResponseWriter, r *ht
 	response := models.Token{Token: token}
 	json.NewEncoder(w).Encode(response)
 }
+
+// VerifyTokenHandler обрабатывает запрос на верификацию JWT токена
+func (handler *AuthHandler) VerifyTokenHandler(w http.ResponseWriter, r *http.Request) {
+	var requestBody struct {
+		Token string `json:"token"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+	if err != nil {
+		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	userID, username, password, err := handler.JWTService.VerifyToken(requestBody.Token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	// Возвращение данных пользователя в ответе
+	response := struct {
+		UserID   int    `json:"userID"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}{
+		UserID:   userID,
+		Username: username,
+		Password: password,
+	}
+
+	json.NewEncoder(w).Encode(response)
+}

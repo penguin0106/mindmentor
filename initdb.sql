@@ -109,8 +109,8 @@ CREATE TABLE IF NOT EXISTS messages (
                                         discussion_id INT NOT NULL,
                                         user_id INT NOT NULL,
                                         text TEXT NOT NULL,
-                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                                        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
                                         FOREIGN KEY (discussion_id) REFERENCES discussions(id) ON DELETE CASCADE,
                                         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
