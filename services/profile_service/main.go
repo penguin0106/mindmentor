@@ -58,9 +58,11 @@ func main() {
 
 	// Настройка маршрутов
 	http.Handle("/user/get", corsMiddleware(http.HandlerFunc(userHandler.GetUserHandler)))
-	http.Handle("/user/update", corsMiddleware(http.HandlerFunc(userHandler.UpdateUserHandler)))
-	http.Handle("/favorites/course", corsMiddleware(http.HandlerFunc(userHandler.GetFavoriteCourseHandler)))
-	http.Handle("/favorites/training", corsMiddleware(http.HandlerFunc(userHandler.GetFavoriteTrainingHandler)))
+	http.Handle("/user/change_username", corsMiddleware(http.HandlerFunc(userHandler.EditProfileUsernameHandler)))
+	http.Handle("/user/change_email", corsMiddleware(http.HandlerFunc(userHandler.EditProfileEmailHandler)))
+	http.Handle("/user/change_password", corsMiddleware(http.HandlerFunc(userHandler.EditProfilePasswordHandler)))
+	http.Handle("/favorites/video", corsMiddleware(http.HandlerFunc(userHandler.GetFavoriteVideosHandler)))
+	http.Handle("/favorites/training", corsMiddleware(http.HandlerFunc(userHandler.GetFavoriteTrainingsHandler)))
 
 	// Запуск сервера
 	log.Println("Server started on port 8086")

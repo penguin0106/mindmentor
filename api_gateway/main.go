@@ -58,7 +58,10 @@ func main() {
 
 	//Profile_service
 	http.HandleFunc("/profile/user/get", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileUserGetHandler)))))
-	http.HandleFunc("/profile/user/update", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileUserUpdateHandler)))))
+	http.HandleFunc("/profile/user/change_username", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileEditProfileUsernameHandler)))))
+	http.HandleFunc("/profile/user/change_email", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileEditProfileEmailHandler)))))
+	http.HandleFunc("/profile/user/change_password", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileEditProfilePasswordHandler)))))
+
 	http.HandleFunc("/profile/favorites/course", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileFavouritesCoursesHandler)))))
 	http.HandleFunc("/profile/favorites/training", loggingMiddleware(authMiddleware(corsMiddleware(http.HandlerFunc(handlers.ProfileFavouritesTrainingsHandler)))))
 

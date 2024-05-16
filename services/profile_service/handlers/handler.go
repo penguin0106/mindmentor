@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
-	"profile_service/models"
 	"profile_service/services"
 	"strconv"
 )
@@ -22,62 +22,24 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 // GetUserHandler обрабатывает запрос на получение информации о пользователе по его ID
 func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	// Извлечение параметра userID из запроса
-	userID := extractUserID(r)
+	userIDStr := r.URL.Query().Get("id")
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		http.Error(w, "Некорректный ID пользователя", http.StatusBadRequest)
+		return
+	}
 
-	// Получение информации о пользователе из UserService
 	user, err := h.userService.GetUserByID(userID)
 	if err != nil {
-		// Обработка ошибки
-		http.Error(w, "Failed to get user information", http.StatusInternalServerError)
+		log.Println("Error getting user by ID:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	// Отправка информации о пользователе в формате JSON
-	jsonResponse(w, user)
-}
-
-// UpdateUserHandler обрабатывает запрос на обновление информации о пользователе
-func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
-	// Извлечение параметра userID из запроса
-	userID := extractUserID(r)
-
-	// Извлечение данных пользователя из тела запроса
-	updatedUser := extractUserFromRequest(r)
-
-	// Обновление информации о пользователе с помощью UserService
-	err := h.userService.UpdateUser(userID, updatedUser)
+	response, err := json.Marshal(user)
 	if err != nil {
-		// Обработка ошибки
-		http.Error(w, "Failed to update user information", http.StatusInternalServerError)
-		return
-	}
-
-	// Отправка успешного ответа
-	w.WriteHeader(http.StatusOK)
-}
-
-func (h *UserHandler) GetFavoriteCourseHandler(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
-		http.Error(w, "Не указан идетификатор пользователя", http.StatusBadRequest)
-		return
-	}
-
-	userID, err := strconv.Atoi(userIDStr)
-	if err != nil {
-		http.Error(w, "Некорректный формат идентификатора пользователя", http.StatusBadRequest)
-		return
-	}
-
-	favorites, err := h.userService.GetFavoriteCourse(userID)
-	if err != nil {
-		http.Error(w, "Ошибка при получении избранных элементов пользователя", http.StatusInternalServerError)
-		return
-	}
-
-	response, err := json.Marshal(favorites)
-	if err != nil {
-		http.Error(w, "Ошибка при преобразовании данных в JSON", http.StatusInternalServerError)
+		log.Println("Error marshalling user to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -86,28 +48,95 @@ func (h *UserHandler) GetFavoriteCourseHandler(w http.ResponseWriter, r *http.Re
 	w.Write(response)
 }
 
-func (h *UserHandler) GetFavoriteTrainingHandler(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
-		http.Error(w, "Не указан идентификатор пользователя", http.StatusBadRequest)
+// EditProfileUsernameHandler обрабатывает запрос на изменение имени пользователя
+func (h *UserHandler) EditProfileUsernameHandler(w http.ResponseWriter, r *http.Request) {
+	// Парсинг данных запроса
+	var requestData struct {
+		UserID      int    `json:"user_id"`
+		NewUsername string `json:"new_username"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&requestData)
+	if err != nil {
+		http.Error(w, "Ошибка декодирования JSON", http.StatusBadRequest)
 		return
 	}
 
+	// Вызов сервиса для редактирования имени пользователя
+	err = h.userService.EditProfileUsername(requestData.UserID, requestData.NewUsername)
+	if err != nil {
+		http.Error(w, "Ошибка при редактировании имени пользователя", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// EditProfileEmailHandler обрабатывает запрос на изменение email пользователя
+func (h *UserHandler) EditProfileEmailHandler(w http.ResponseWriter, r *http.Request) {
+	// Парсинг данных запроса
+	var requestData struct {
+		UserID   int    `json:"user_id"`
+		NewEmail string `json:"new_email"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&requestData)
+	if err != nil {
+		http.Error(w, "Ошибка декодирования JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Вызов сервиса для редактирования email пользователя
+	err = h.userService.EditProfileEmail(requestData.UserID, requestData.NewEmail)
+	if err != nil {
+		http.Error(w, "Ошибка при редактировании email пользователя", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// EditProfilePasswordHandler обрабатывает запрос на изменение пароля пользователя
+func (h *UserHandler) EditProfilePasswordHandler(w http.ResponseWriter, r *http.Request) {
+	// Парсинг данных запроса
+	var requestData struct {
+		UserID      int    `json:"user_id"`
+		NewPassword string `json:"new_password"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&requestData)
+	if err != nil {
+		http.Error(w, "Ошибка декодирования JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Вызов сервиса для редактирования пароля пользователя
+	err = h.userService.EditProfilePassword(requestData.UserID, requestData.NewPassword)
+	if err != nil {
+		http.Error(w, "Ошибка при редактировании пароля пользователя", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// GetFavoriteVideosHandler возвращает избранные видео пользователя
+func (h *UserHandler) GetFavoriteVideosHandler(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("user_id")
 	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
-		http.Error(w, "Некорректный формат идентификатора пользователя", http.StatusBadRequest)
+		http.Error(w, "Некорректный ID пользователя", http.StatusBadRequest)
 		return
 	}
 
-	favorites, err := h.userService.GetFavoriteTraining(userID)
+	favoriteVideos, err := h.userService.GetFavoriteVideos(userID)
 	if err != nil {
-		http.Error(w, "Ошибка при получении избранных элементов пользователя", http.StatusInternalServerError)
+		log.Println("Error getting favorite videos:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	response, err := json.Marshal(favorites)
+	response, err := json.Marshal(favoriteVideos)
 	if err != nil {
-		http.Error(w, "Ошибка при преобразовании данных в JSON", http.StatusInternalServerError)
+		log.Println("Error marshalling favorite videos to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -116,35 +145,30 @@ func (h *UserHandler) GetFavoriteTrainingHandler(w http.ResponseWriter, r *http.
 	w.Write(response)
 }
 
-func extractUserID(r *http.Request) int {
-	// Пример извлечения параметра userID из URL запроса
-	userIDParam := r.URL.Query().Get("userID")
-	userID, err := strconv.Atoi(userIDParam)
+// GetFavoriteTrainingsHandler возвращает избранные тренировки пользователя
+func (h *UserHandler) GetFavoriteTrainingsHandler(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("user_id")
+	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
-		// В случае ошибки возвращаем 0 или другое значение по умолчанию
-		return 0
-	}
-	return userID
-}
-
-func extractUserFromRequest(r *http.Request) *models.User {
-	// Пример извлечения данных пользователя из тела запроса
-	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		// Обработка ошибки, например, запись в лог или возвращение ошибки
-		return nil
-	}
-	return &user
-}
-
-func jsonResponse(w http.ResponseWriter, data interface{}) {
-	// Пример формирования ответа в формате JSON
-	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(data)
-	if err != nil {
-		// Обработка ошибки, например, запись в лог или возвращение ошибки
-		http.Error(w, "Failed to encode JSON response", http.StatusInternalServerError)
+		http.Error(w, "Некорректный ID пользователя", http.StatusBadRequest)
 		return
 	}
+
+	favoriteTrainings, err := h.userService.GetFavoriteTrainings(userID)
+	if err != nil {
+		log.Println("Error getting favorite trainings:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	response, err := json.Marshal(favoriteTrainings)
+	if err != nil {
+		log.Println("Error marshalling favorite trainings to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
 }

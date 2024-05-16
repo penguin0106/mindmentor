@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"profile_service/models"
 )
 
@@ -14,68 +15,99 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
+// GetUserByID возвращает данные пользователя по его идентификатору
 func (r *UserRepository) GetUserByID(userID int) (*models.User, error) {
-	var user models.User
-	err := r.DB.QueryRow("SELECT id, username, email FROM users WHERE id = $1", userID).Scan(&user.ID, &user.Username, &user.Email)
+	query := "SELECT id, username, email FROM users WHERE id = $1"
+	row := r.DB.QueryRow(query, userID)
 
+	var user models.User
+	err := row.Scan(&user.ID, &user.Username, &user.Email)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("пользователь не найден")
+		}
 		return nil, err
 	}
+
 	return &user, nil
 }
 
-func (r *UserRepository) UpdateUser(userID int, updatedUser *models.User) error {
-	_, err := r.DB.Exec("UPDATE users SET username = $2, email = $3 WHERE id = $1", userID, updatedUser.Username, updatedUser.Email)
+// EditProfileUsername редактирует имя пользователя в профиле
+func (r *UserRepository) EditProfileUsername(userID int, newUsername string) error {
+	query := "UPDATE users SET username = $1 WHERE id = $2"
+	_, err := r.DB.Exec(query, newUsername, userID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *UserRepository) GetFavoriteCourse(userID int) ([]models.Favorite, error) {
-	rows, err := r.DB.Query("SELECT item_id FROM course_favorites WHERE user_id = $1", userID)
+// EditProfileEmail редактирует email в профиле
+func (r *UserRepository) EditProfileEmail(userID int, newEmail string) error {
+	query := "UPDATE users SET email = $1 WHERE id = $2"
+	_, err := r.DB.Exec(query, newEmail, userID)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	defer rows.Close()
-
-	var favorites []models.Favorite
-	for rows.Next() {
-		var itemID int
-		err := rows.Scan(&itemID)
-		if err != nil {
-			return nil, err
-		}
-		favorite := models.Favorite{
-			UserID: userID,
-			ItemID: itemID,
-		}
-		favorites = append(favorites, favorite)
-	}
-
-	return favorites, nil
+	return nil
 }
 
-func (r *UserRepository) GetFavoriteTraining(userID int) ([]models.Favorite, error) {
-	rows, err := r.DB.Query("SELECT item_id FROM trainings_favorites WHERE user_id = $1", userID)
+// EditProfilePassword редактирует пароль в профиле
+func (r *UserRepository) EditProfilePassword(userID int, newPassword string) error {
+	query := "UPDATE users SET password = $1 WHERE id = $2"
+	_, err := r.DB.Exec(query, newPassword, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetFavoriteVideos возвращает избранные видео пользователя
+func (r *UserRepository) GetFavoriteVideos(userID int) ([]int, error) {
+	query := "SELECT video_id FROM video_favorites WHERE user_id = $1"
+	rows, err := r.DB.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var favorites []models.Favorite
+	var favoriteVideos []int
 	for rows.Next() {
-		var itemID int
-		err := rows.Scan(&itemID)
+		var fav models.Favorite
+		err := rows.Scan(&fav.ItemID)
 		if err != nil {
 			return nil, err
 		}
-		favorite := models.Favorite{
-			UserID: userID,
-			ItemID: itemID,
-		}
-		favorites = append(favorites, favorite)
+		favoriteVideos = append(favoriteVideos, fav.ItemID)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
-	return favorites, nil
+	return favoriteVideos, nil
+}
+
+// GetFavoriteTrainings возвращает избранные тренировки пользователя
+func (r *UserRepository) GetFavoriteTrainings(userID int) ([]int, error) {
+	query := "SELECT training_id FROM training_favorites WHERE user_id = $1"
+	rows, err := r.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var favoriteTrainings []int
+	for rows.Next() {
+		var fav models.Favorite
+		err := rows.Scan(&fav.ItemID)
+		if err != nil {
+			return nil, err
+		}
+		favoriteTrainings = append(favoriteTrainings, fav.ItemID)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return favoriteTrainings, nil
 }
