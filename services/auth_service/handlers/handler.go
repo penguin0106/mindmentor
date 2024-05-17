@@ -87,31 +87,28 @@ func (handler *AuthHandler) VerifyTokenHandler(w http.ResponseWriter, r *http.Re
 
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
 	if err != nil {
-		log.Println("Failed to parse request body:", err)
+		log.Println("Не удалось разобрать тело запроса:", err)
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
 	}
 
-	userID, username, password, err := handler.JWTService.VerifyToken(requestBody.Token)
+	userID, username, _, err := handler.JWTService.VerifyToken(requestBody.Token)
 	if err != nil {
-		log.Println("Token verification failed:", err)
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		log.Println("Ошибка проверки токена:", err)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	// Возвращение данных пользователя в ответе
 	response := struct {
 		UserID   int    `json:"userID"`
 		Username string `json:"username"`
-		Password string `json:"password"`
 	}{
 		UserID:   userID,
 		Username: username,
-		Password: password,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Failed to encode response:", err)
+		log.Println("Не удалось закодировать ответ:", err)
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
 }
