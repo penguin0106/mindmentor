@@ -19,6 +19,29 @@ const (
 	defaultDBName   = "mindmentor"
 )
 
+// connectToDatabase подключается к базе данных и возвращает объект подключения
+func connectToDatabase() (*sql.DB, error) {
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", defaultHost, defaultPort, defaultUser, defaultPassword, defaultDBName)
+	db, err := sql.Open("postgres", connStr)
+
+	return db, err
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, UPDATE, DELETE, PUT, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			http.Error(w, "", http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// Подключение к базе данных
 	db, err := connectToDatabase()
@@ -38,18 +61,6 @@ func main() {
 	trainingHandler := handlers.NewTrainingHandler(trainingServ)
 	commentHandler := handlers.NewCommentHandler(commentServ)
 	favoriteHandler := handlers.NewFavoriteHandler(favoriteServ)
-
-	// Регистрация HTTP обработчиков
-	http.Handle("/trainings/get", corsMiddleware(http.HandlerFunc(trainingHandler.GetAllBooksHandler)))
-	http.Handle("/trainings/search", corsMiddleware(http.HandlerFunc(trainingHandler.GetBookByNameHandler)))
-
-	// Register favorite handler functions with CORS middleware
-	http.Handle("/favorites/add", corsMiddleware(http.HandlerFunc(favoriteHandler.AddToFavoritesHandler)))
-	http.Handle("/favorites/remove", corsMiddleware(http.HandlerFunc(favoriteHandler.RemoveFromFavoritesHandler)))
-
-	// Register comment handler functions with CORS middleware
-	http.Handle("/comments/add", corsMiddleware(http.HandlerFunc(commentHandler.AddBookCommentHandler)))
-	http.Handle("/comments/get", corsMiddleware(http.HandlerFunc(commentHandler.GetBookCommentsHandler)))
 
 	http.Handle("/rating/add", corsMiddleware(http.HandlerFunc(commentHandler.AddBookRatingHandler)))
 	http.Handle("/rating/get", corsMiddleware(http.HandlerFunc(commentHandler.GetBookRatingHandler)))
