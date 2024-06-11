@@ -58,11 +58,3 @@ func main() {
 	// Запуск сервера
 	http.ListenAndServe(":8082", nil)
 }
-
-// connectToDatabase подключается к базе данных и возвращает объект подключения
-func connectToDatabase() (*sql.DB, error) {
-	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", defaultHost, defaultPort, defaultUser, defaultPassword, defaultDBName)
-	db, err := sql.Open("postgres", connStr)
-
-	return db, err
-}
